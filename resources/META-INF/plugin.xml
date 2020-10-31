@@ -1,0 +1,27 @@
+<idea-plugin>
+  <id>com.your.company.unique.plugin.id</id>
+  <name>Http-Test-Creator</name>
+  <version>1.0</version>
+  <vendor email="cweijan@163.com" url="">cweijan</vendor>
+
+  <description><![CDATA[
+     在方法的ContextAction增加创建Http测试菜单, 用于快速生成Http测试用例
+    ]]></description>
+
+  <idea-version since-build="183"/>
+
+  <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.java</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <intentionAction>
+      <className>github.cweijan.http.test.CreateHttpTestAction</className>
+    </intentionAction>
+  </extensions>
+
+  <actions>
+    <!-- Add your actions here -->
+  </actions>
+
+</idea-plugin>
