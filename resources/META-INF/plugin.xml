@@ -16,7 +16,10 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <intentionAction>
-      <className>github.cweijan.http.test.CreateHttpTestAction</className>
+      <className>github.cweijan.http.test.action.HttpTestForMethodAction</className>
+    </intentionAction>
+    <intentionAction>
+      <className>github.cweijan.http.test.action.HttpTestForClassAction</className>
     </intentionAction>
   </extensions>
 

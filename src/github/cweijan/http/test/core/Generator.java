@@ -14,7 +14,6 @@ import github.cweijan.http.test.util.PsiClassUtils;
 import github.cweijan.http.test.util.ReflectUtil;
 import org.jetbrains.annotations.NotNull;
 
-import java.beans.Introspector;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -24,7 +23,10 @@ import java.util.Properties;
  */
 public class Generator {
 
-    public static PsiElement generateTestClass(@NotNull Project project, @NotNull PsiClass psiClass) {
+    public static PsiClass generateTestClass(GenerateContext generateContext) {
+
+        @NotNull Project project = generateContext.project;
+        @NotNull PsiClass psiClass = generateContext.targetClass;
 
         final PsiPackage srcPackage = JavaDirectoryService.getInstance().getPackage(psiClass.getContainingFile().getContainingDirectory());
         final Module srcModule = ModuleUtilCore.findModuleForPsiElement(psiClass);
@@ -35,7 +37,7 @@ public class Generator {
 
         GlobalSearchScope scope = GlobalSearchScopesCore.directoryScope(psiDirectory, false);
         PsiPackage aPackage = JavaDirectoryService.getInstance().getPackage(psiDirectory);
-        String testClassName = psiClass.getName()+"Test";
+        String testClassName = psiClass.getName() + "Test";
         PsiClass[] classes = aPackage.findClassByShortName(testClassName, scope);
         if (classes.length > 0) {
             return classes[0];
@@ -81,7 +83,10 @@ public class Generator {
         return fieldCode;
     }
 
-    public static PsiMethod generateMethodContent(Project project, PsiClass psiClass, PsiMethod method) {
+    public static PsiMethod generateMethodContent(Project project, PsiClass sourceClass, PsiClass testClass, PsiMethod method) {
+
+        PsiField sourceField = findField(testClass,sourceClass);
+
         ArrayList<String> params = new ArrayList<>();
         StringBuilder methodContent = new StringBuilder();
         for (PsiParameter parameter : method.getParameterList().getParameters()) {
@@ -91,19 +96,31 @@ public class Generator {
         }
         String returnTypeStr = method.getReturnTypeElement().getText();
         String methodName = method.getName();
-        String testInsName = Introspector.decapitalize(psiClass.getName());
         methodContent.append(
-                String.format("%s %s=%s.%s(%s);", returnTypeStr, methodName, testInsName, methodName, String.join(",", params))
+                String.format("%s %s=%s.%s(%s);", returnTypeStr, methodName, sourceField.getName(), methodName, String.join(",", params))
         );
         String fullMethod = "@Test\n" +
                 "void " + methodName + "(){\n" +
                 "    \n" +
                 "    " + methodContent.toString() + "\n" +
                 "    \n" +
-                "}\n"+
-                "\n" ;
+                "}\n" +
+                "\n";
 
-        return JVMElementFactories.getFactory(psiClass.getLanguage(), project).createMethodFromText(fullMethod, psiClass);
+        return JVMElementFactories.getFactory(testClass.getLanguage(), project).createMethodFromText(fullMethod, testClass);
     }
+
+    private static PsiField findField(PsiClass testClass,PsiClass sourceClass) {
+        for (PsiField testClassField : testClass.getAllFields()) {
+            if(testClassField.getType().getCanonicalText().equals(sourceClass.getQualifiedName())){
+                return testClassField;
+            }
+
+        }
+
+        // TODO 如果没有找到则创建新的Field
+        throw new UnsupportedOperationException("");
+    }
+
 
 }

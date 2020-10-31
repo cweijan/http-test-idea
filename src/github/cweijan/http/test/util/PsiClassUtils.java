@@ -14,10 +14,15 @@
 
 package github.cweijan.http.test.util;
 
-import com.intellij.psi.JavaDirectoryService;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiMethod;
-import com.intellij.psi.PsiPackage;
+import com.intellij.codeInsight.CodeInsightBundle;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.project.DumbService;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Computable;
+import com.intellij.psi.*;
+import com.intellij.psi.impl.source.PostprocessReformattingAspect;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -127,4 +132,30 @@ public class PsiClassUtils {
         return psiPackage.getQualifiedName()+"."+psiClass.getName();
 
     }
+
+    public static PsiClass getContainingClass(PsiElement element) {
+        final PsiClass psiClass = PsiTreeUtil.getParentOfType(element, PsiClass.class, false);
+        if (psiClass == null) {
+            final PsiFile containingFile = element.getContainingFile();
+            if (containingFile instanceof PsiClassOwner) {
+                final PsiClass[] classes = ((PsiClassOwner) containingFile).getClasses();
+                if (classes.length == 1) {
+                    return classes[0];
+                }
+            }
+        }
+        return psiClass;
+    }
+
+
+    public static void doWrite(Project project, Computable<PsiElement> computable){
+        CommandProcessor.getInstance().executeCommand(project, () -> {
+            DumbService.getInstance(project).withAlternativeResolveEnabled(() -> {
+                PostprocessReformattingAspect.getInstance(project).postponeFormattingInside(() -> {
+                    ApplicationManager.getApplication().runWriteAction(computable);
+                });
+            });
+        }, CodeInsightBundle.message("intention.create.test", new Object[0]), PsiClassUtils.class);
+    }
+
 }
