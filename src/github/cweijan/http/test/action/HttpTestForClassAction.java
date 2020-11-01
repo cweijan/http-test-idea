@@ -12,11 +12,11 @@ import com.intellij.psi.*;
 import com.intellij.refactoring.util.classMembers.MemberInfo;
 import com.intellij.testIntegration.createTest.CreateTestAction;
 import com.intellij.util.IncorrectOperationException;
-import github.cweijan.http.test.CreateHttpTestDialog;
+import github.cweijan.http.test.config.Constant;
 import github.cweijan.http.test.core.GenerateContext;
 import github.cweijan.http.test.core.Generator;
 import github.cweijan.http.test.core.MethodCreator;
-import github.cweijan.http.test.util.Constant;
+import github.cweijan.http.test.ui.CreateHttpTestDialog;
 import github.cweijan.http.test.util.PsiClassUtils;
 import org.jetbrains.annotations.NotNull;
 

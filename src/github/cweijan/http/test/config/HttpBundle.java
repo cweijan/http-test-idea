@@ -1,4 +1,4 @@
-package github.cweijan.http.test.core;
+package github.cweijan.http.test.config;
 
 import com.intellij.DynamicBundle;
 import org.jetbrains.annotations.NotNull;

@@ -1,5 +1,5 @@
 // Copyright 2000-2018 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
-package github.cweijan.http.test;
+package github.cweijan.http.test.ui;
 
 import com.intellij.CommonBundle;
 import com.intellij.codeInsight.CodeInsightBundle;
@@ -49,8 +49,8 @@ import com.intellij.util.ObjectUtils;
 import com.intellij.util.SmartList;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBUI;
+import github.cweijan.http.test.config.HttpBundle;
 import github.cweijan.http.test.core.GenerateContext;
-import github.cweijan.http.test.core.HttpBundle;
 import github.cweijan.http.test.util.ReflectUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

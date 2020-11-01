@@ -12,7 +12,7 @@ import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.psi.util.PsiTypesUtil;
 import com.intellij.testIntegration.createTest.CreateTestAction;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
-import github.cweijan.http.test.template.java.JavaTestTemplate;
+import github.cweijan.http.test.template.TestTemplate;
 import github.cweijan.http.test.util.PsiClassUtils;
 import github.cweijan.http.test.util.ReflectUtil;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +49,7 @@ public class Generator {
         properties.setProperty("NAME", testClassName);
         properties.setProperty("CLASS_NAME", originClass.getQualifiedName());
         PsiClass testClass = ReflectUtil.invoke(FileTemplateUtil.class, "createFromTemplate",
-                JavaTestTemplate.instance.loadTestClassTemplate(), testClassName, properties, psiDirectory);
+                TestTemplate.getInstance().loadTestClassTemplate(), testClassName, properties, psiDirectory);
         generateContext.testClass = testClass;
 
         PsiClassUtils.doWrite(project, () -> {
@@ -72,15 +72,7 @@ public class Generator {
     }
 
     private static void createBeforeMethod(GenerateContext generateContext) {
-        String fullMethod = "/**\n" +
-                " * 拦截请求, 可在请求之前做一些操作\n" +
-                " */\n" +
-                "@org.junit.jupiter.api.BeforeAll\n" +
-                "public static void beforeRequest(){\n" +
-                "    addRequestInterceptor(request ->{\n" +
-                "        request.header(\"token\",\"c2f678d4873c472c8f99940e8cf39fe4\");\n" +
-                "    });\n" +
-                "}";
+        String fullMethod = TestTemplate.getInstance().loadBeforeMethodTemplate();
         PsiMethod beforeMethod = JVMElementFactories.getFactory(generateContext.testClass.getLanguage(), generateContext.project).createMethodFromText(fullMethod, generateContext.testClass);
         generateContext.testClass.add(beforeMethod);
         JavaCodeStyleManager.getInstance(generateContext.project).shortenClassReferences(generateContext.testClass);
@@ -174,11 +166,10 @@ public class Generator {
         methodContent.append(
                 String.format("%s %s=%s.%s(%s);", returnTypeStr, methodName, sourceField.getName(), methodName, String.join(",", params))
         );
-        String fullMethod = "@org.junit.jupiter.api.Test\n" +
-                "void " + methodName + "(){\n" +
-                "    " + methodContent.toString() + "\n" +
-                "}\n" +
-                "\n";
+
+        String fullMethod = TestTemplate.getInstance().loadTestMethodTemplate()
+                .replace("${NAME}", methodName)
+                .replace("${BODY}", methodContent);
 
         return JVMElementFactories.getFactory(testClass.getLanguage(), project).createMethodFromText(fullMethod, testClass);
     }

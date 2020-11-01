@@ -13,6 +13,8 @@ public class JavaTestTemplate implements TestTemplate {
     public static final JavaTestTemplate instance = new JavaTestTemplate();
 
     private CustomFileTemplate classFileTemplate;
+    private String beforeMethod;
+    private String testMethod;
 
     private JavaTestTemplate() {
     }
@@ -21,18 +23,22 @@ public class JavaTestTemplate implements TestTemplate {
     @Override
     public FileTemplate loadTestClassTemplate() {
 //        if (classFileTemplate == null)
-            classFileTemplate = loadTemplate(CLASS_PREFIX, "java/TestClass");
+        classFileTemplate = loadTemplate(CLASS_PREFIX, "java/TestClass");
         return classFileTemplate;
     }
 
     @Override
     public String loadTestMethodTemplate() {
-        return null;
+        //        if (testMethod == null)
+            testMethod = loadTemplateStr("java/TestMethod");
+        return testMethod;
     }
 
     @Override
     public String loadBeforeMethodTemplate() {
-        return null;
+//        if (beforeMethod == null)
+        beforeMethod = loadTemplateStr("java/BeforeMethod");
+        return beforeMethod;
     }
 
     @Override
