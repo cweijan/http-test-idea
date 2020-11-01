@@ -2,4 +2,3 @@
 void ${NAME}(){
     ${BODY}
 }
-

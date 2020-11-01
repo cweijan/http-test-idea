@@ -33,7 +33,7 @@ import java.util.List;
  * @Date 2017/1/30
  * @Description
  */
-public class PsiClassUtils {
+public class PsiUtils {
     public static boolean isNotSystemClass(PsiClass psiClass) {
         if (psiClass == null) {
             return false;
@@ -45,28 +45,14 @@ public class PsiClassUtils {
     public static boolean isValidSetMethod(PsiMethod m) {
         return m.hasModifierProperty("public") &&
                 !m.hasModifierProperty("static") &&
-                m.getParameterList().getParametersCount()==1 &&
+                m.getParameterList().getParametersCount() == 1 &&
                 (m.getName().startsWith("set") || m.getName().startsWith("with"));
-    }
-
-    public static boolean isValidGetMethod(PsiMethod m) {
-        return m.hasModifierProperty("public") && !m.hasModifierProperty("static") &&
-                (m.getName().startsWith("get") || m.getName().startsWith("is"));
     }
 
     public static void addSetMethodToList(PsiClass psiClass, List<PsiMethod> methodList) {
         PsiMethod[] methods = psiClass.getMethods();
         for (PsiMethod method : methods) {
             if (isValidSetMethod(method)) {
-                methodList.add(method);
-            }
-        }
-    }
-
-    public static void addGettMethodToList(PsiClass psiClass, List<PsiMethod> methodList) {
-        PsiMethod[] methods = psiClass.getMethods();
-        for (PsiMethod method : methods) {
-            if (isValidGetMethod(method)) {
                 methodList.add(method);
             }
         }
@@ -82,23 +68,24 @@ public class PsiClassUtils {
         return methodList;
     }
 
-    public static List<PsiMethod> extractGetMethod(PsiClass psiClass) {
-        List<PsiMethod> methodList = new ArrayList<>();
-        while (isNotSystemClass(psiClass)) {
-            addGettMethodToList(psiClass, methodList);
-            psiClass = psiClass.getSuperClass();
+    public static boolean isRequest(PsiMember psiMember) {
+        for (PsiAnnotation annotation : psiMember.getAnnotations()) {
+            if (annotation.getQualifiedName().startsWith("org.springframework.web.bind.annotation")) {
+                return true;
+            }
         }
-        return methodList;
+        return false;
     }
 
-    public static boolean checkClassHasValidSetMethod(PsiClass psiClass) {
-        if (psiClass == null) {
-            return false;
-        }
-        while (isNotSystemClass(psiClass)) {
-            for (PsiMethod m : psiClass.getMethods()) {
-                if (isValidSetMethod(m)) {
-                    return true;
+    public static boolean isController(PsiClass psiClass) {
+        String[] qualifiedNames = new String[]{"org.springframework.stereotype.Controller",
+                "org.springframework.web.bind.annotation"};
+        while (psiClass != null) {
+            for (PsiAnnotation annotation : psiClass.getAnnotations()) {
+                for (String qualifiedName : qualifiedNames) {
+                    if (qualifiedName.equals(annotation.getQualifiedName())) {
+                        return true;
+                    }
                 }
             }
             psiClass = psiClass.getSuperClass();
@@ -106,28 +93,12 @@ public class PsiClassUtils {
         return false;
     }
 
-
-    public static boolean checkClasHasValidGetMethod(PsiClass psiClass) {
-        if (psiClass == null) {
-            return false;
-        }
-        while (isNotSystemClass(psiClass)) {
-            for (PsiMethod m : psiClass.getMethods()) {
-                if (isValidGetMethod(m)) {
-                    return true;
-                }
-            }
-            psiClass = psiClass.getSuperClass();
-        }
-        return false;
-    }
-
-    public static String getQualifiedName(PsiClass psiClass){
+    public static String getQualifiedName(PsiClass psiClass) {
         PsiPackage psiPackage = JavaDirectoryService.getInstance().getPackage(psiClass.getContainingFile().getContainingDirectory());
-        if(psiPackage==null){
+        if (psiPackage == null) {
             return psiClass.getName();
         }
-        return psiPackage.getQualifiedName()+"."+psiClass.getName();
+        return psiPackage.getQualifiedName() + "." + psiClass.getName();
 
     }
 
@@ -146,14 +117,14 @@ public class PsiClassUtils {
     }
 
 
-    public static void doWrite(Project project, Computable<PsiElement> computable){
+    public static void doWrite(Project project, Computable<PsiElement> computable) {
         CommandProcessor.getInstance().executeCommand(project, () -> {
             DumbService.getInstance(project).withAlternativeResolveEnabled(() -> {
                 PostprocessReformattingAspect.getInstance(project).postponeFormattingInside(() -> {
                     ApplicationManager.getApplication().runWriteAction(computable);
                 });
             });
-        }, CodeInsightBundle.message("intention.create.test", new Object[0]), PsiClassUtils.class);
+        }, CodeInsightBundle.message("intention.create.test", new Object[0]), PsiUtils.class);
     }
 
 }

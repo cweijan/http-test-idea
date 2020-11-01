@@ -51,6 +51,7 @@ import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBUI;
 import github.cweijan.http.test.config.HttpBundle;
 import github.cweijan.http.test.core.GenerateContext;
+import github.cweijan.http.test.util.PsiUtils;
 import github.cweijan.http.test.util.ReflectUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +67,7 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.List;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CreateHttpTestDialog extends DialogWrapper {
     private static final String RECENTS_KEY = "CreateTestDialog.RecentsKey";
@@ -179,7 +181,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
 
     private void updateMethodsTable() {
         List<MemberInfo> methods = TestIntegrationUtils.extractClassMethods(
-                myTargetClass, myShowInheritedMethodsBox.isSelected());
+                myTargetClass, myShowInheritedMethodsBox.isSelected()).stream().filter(memberInfo -> PsiUtils.isRequest(memberInfo.getMember())).collect(Collectors.toList());
 
         Set<PsiMember> selectedMethods = new HashSet<>();
         for (MemberInfo each : myMethodsTable.getSelectedMemberInfos()) {

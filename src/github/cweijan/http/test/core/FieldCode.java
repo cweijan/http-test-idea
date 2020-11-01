@@ -1,7 +1,7 @@
 package github.cweijan.http.test.core;
 
 import com.intellij.psi.PsiClass;
-import github.cweijan.http.test.util.PsiClassUtils;
+import github.cweijan.http.test.util.PsiUtils;
 
 import java.beans.Introspector;
 
@@ -18,7 +18,7 @@ public class FieldCode {
         String className = psiClass.getName();
         this.name= Introspector.decapitalize(className);
 
-        String qualifiedName = PsiClassUtils.getQualifiedName(psiClass);
+        String qualifiedName = PsiUtils.getQualifiedName(psiClass);
         if (qualifiedName.startsWith("java.util")) {
 
 //            return;

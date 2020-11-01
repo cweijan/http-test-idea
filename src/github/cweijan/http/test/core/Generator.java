@@ -13,7 +13,7 @@ import com.intellij.psi.util.PsiTypesUtil;
 import com.intellij.testIntegration.createTest.CreateTestAction;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
 import github.cweijan.http.test.template.TestTemplate;
-import github.cweijan.http.test.util.PsiClassUtils;
+import github.cweijan.http.test.util.PsiUtils;
 import github.cweijan.http.test.util.ReflectUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +52,7 @@ public class Generator {
                 TestTemplate.getInstance().loadTestClassTemplate(), testClassName, properties, psiDirectory);
         generateContext.testClass = testClass;
 
-        PsiClassUtils.doWrite(project, () -> {
+        PsiUtils.doWrite(project, () -> {
 
             if (generateContext.superClassName != null && !generateContext.superClassName.equals("")) {
                 ReflectUtil.invoke(JavaTestGenerator.class, "addSuperClass", testClass, project, generateContext.superClassName);
@@ -139,7 +139,7 @@ public class Generator {
         FieldCode fieldCode = new FieldCode(parameterClass);
 
         StringBuilder stringBuilder = new StringBuilder(fieldCode.getNewStatement() + ";\n");
-        for (PsiMethod setMethod : PsiClassUtils.extractSetMethods(parameterClass)) {
+        for (PsiMethod setMethod : PsiUtils.extractSetMethods(parameterClass)) {
             stringBuilder.append("    ").append(
                     String.format("%s.%s(request(%s.class))", fieldCode.getName(), setMethod.getName(),
                             ((PsiClassReferenceType) setMethod.getParameterList().getParameters()[0].getType()).getClassName())

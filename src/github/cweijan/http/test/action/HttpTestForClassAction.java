@@ -17,7 +17,7 @@ import github.cweijan.http.test.core.GenerateContext;
 import github.cweijan.http.test.core.Generator;
 import github.cweijan.http.test.core.MethodCreator;
 import github.cweijan.http.test.ui.CreateHttpTestDialog;
-import github.cweijan.http.test.util.PsiClassUtils;
+import github.cweijan.http.test.util.PsiUtils;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -29,7 +29,7 @@ public class HttpTestForClassAction extends PsiElementBaseIntentionAction {
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
 
-        PsiClass sourceClass = PsiClassUtils.getContainingClass(psiElement);
+        PsiClass sourceClass = PsiUtils.getContainingClass(psiElement);
 
         final PsiPackage srcPackage = JavaDirectoryService.getInstance().getPackage(sourceClass.getContainingFile().getContainingDirectory());
         final Module srcModule = ModuleUtilCore.findModuleForPsiElement(sourceClass);
@@ -38,16 +38,16 @@ public class HttpTestForClassAction extends PsiElementBaseIntentionAction {
         CreateHttpTestDialog testDialog = new CreateHttpTestDialog(project, "CreateHttpTest", sourceClass, srcPackage, testModule);
 
 
-        if(testDialog.showAndGet()){
+        if (testDialog.showAndGet()) {
 
             GenerateContext generateContext = testDialog.getGenerateContext();
 
             PsiClass testClass = Generator.getOrCreateTestClass(generateContext);
 
             CodeInsightUtil.positionCursorAtLBrace(project, testClass.getContainingFile(), testClass);
-            PsiClassUtils.doWrite(project,()->{
+            PsiUtils.doWrite(project, () -> {
                 for (MemberInfo memberInfo : generateContext.methods) {
-                    MethodCreator.createMethod(project,sourceClass,testClass,(PsiMethod) memberInfo.getMember());
+                    MethodCreator.createMethod(project, sourceClass, testClass, (PsiMethod) memberInfo.getMember());
                 }
                 return testClass;
             });
@@ -60,7 +60,8 @@ public class HttpTestForClassAction extends PsiElementBaseIntentionAction {
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
 
-        return psiElement.getParent() instanceof PsiClass;
+        PsiElement psiClass = psiElement.getParent();
+        return (psiClass instanceof PsiClass) && PsiUtils.isController((PsiClass) psiClass);
     }
 
     @NotNull

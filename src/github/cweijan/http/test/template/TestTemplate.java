@@ -51,7 +51,7 @@ public interface TestTemplate {
     default String loadTemplateStr(String file) {
         InputStream in = TestTemplate.class.getResourceAsStream("/template/" + file + "." + this.extension());
         try {
-            return IOUtils.toString(in, StandardCharsets.UTF_8);
+            return IOUtils.toString(in, StandardCharsets.UTF_8).replaceAll("\r","");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
