@@ -49,7 +49,7 @@ public class Generator {
         properties.setProperty("NAME", testClassName);
         properties.setProperty("CLASS_NAME", originClass.getQualifiedName());
         PsiClass testClass = ReflectUtil.invoke(FileTemplateUtil.class, "createFromTemplate",
-                JavaTestTemplate.classTemplate, testClassName, properties, psiDirectory);
+                JavaTestTemplate.instance.loadTestClassTemplate(), testClassName, properties, psiDirectory);
         generateContext.testClass = testClass;
 
         PsiClassUtils.doWrite(project, () -> {

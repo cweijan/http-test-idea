@@ -8,34 +8,36 @@ import github.cweijan.http.test.template.TestTemplate;
  * @author cweijan
  * @since 2020/10/31 17:50
  */
-public class JavaTestTemplate {
+public class JavaTestTemplate implements TestTemplate {
 
-    public static final FileTemplate classTemplate;
+    public static final JavaTestTemplate instance = new JavaTestTemplate();
 
-    static {
-        classTemplate = new CustomFileTemplate(TestTemplate.CLASS_PREFIX + "JAVA", "java");
-        initClassTemplate();
+    private CustomFileTemplate classFileTemplate;
+
+    private JavaTestTemplate() {
     }
 
-    private static void initClassTemplate() {
-        classTemplate.setText("import static io.github.cweijan.mock.Mocker.*;\n" +
-                "import static io.github.cweijan.mock.request.Generator.*;\n" +
-                "import static io.github.cweijan.mock.Asserter.*;\n" +
-                "import org.junit.jupiter.api.Test;\n" +
-                "import javax.annotation.Resource;\n" +
-                "\n" +
-                "#set($name = ${CLASS_NAME.replaceAll(\".+\\.(\\w+)$\",\"$1\")})\n" +
-                "#set($name = $name.substring(0,1).toLowerCase() + $name.substring(1))\n" +
-                "#parse(\"File Header.java\")\n" +
-                "class ${NAME} {\n" +
-                "\n" +
-                "  @Resource\n" +
-                "  private ${CLASS_NAME} ${name};" +
-                "  ${BODY}\n" +
-                "\n" +
-                "}\n");
 
+    @Override
+    public FileTemplate loadTestClassTemplate() {
+//        if (classFileTemplate == null)
+            classFileTemplate = loadTemplate(CLASS_PREFIX, "java/TestClass");
+        return classFileTemplate;
     }
 
+    @Override
+    public String loadTestMethodTemplate() {
+        return null;
+    }
+
+    @Override
+    public String loadBeforeMethodTemplate() {
+        return null;
+    }
+
+    @Override
+    public String extension() {
+        return "java";
+    }
 
 }
