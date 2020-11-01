@@ -20,6 +20,8 @@ import github.cweijan.http.test.ui.CreateHttpTestDialog;
 import github.cweijan.http.test.util.PsiUtils;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
+
 /**
  * @author cweijan
  * @since 2020/10/31 21:53
@@ -38,22 +40,19 @@ public class HttpTestForClassAction extends PsiElementBaseIntentionAction {
         CreateHttpTestDialog testDialog = new CreateHttpTestDialog(project, "CreateHttpTest", sourceClass, srcPackage, testModule);
 
 
-        if (testDialog.showAndGet()) {
-
-            GenerateContext generateContext = testDialog.getGenerateContext();
-
-            PsiClass testClass = Generator.getOrCreateTestClass(generateContext);
-
-            CodeInsightUtil.positionCursorAtLBrace(project, testClass.getContainingFile(), testClass);
-            PsiUtils.doWrite(project, () -> {
-                for (MemberInfo memberInfo : generateContext.methods) {
-                    MethodCreator.createMethod(project, sourceClass, testClass, (PsiMethod) memberInfo.getMember());
-                }
-                return testClass;
-            });
-
-        }
-
+        SwingUtilities.invokeLater(()-> {
+            if (testDialog.showAndGet()) {
+                GenerateContext generateContext = testDialog.getGenerateContext();
+                PsiClass testClass = Generator.getOrCreateTestClass(generateContext);
+                CodeInsightUtil.positionCursorAtLBrace(project, testClass.getContainingFile(), testClass);
+                PsiUtils.doWrite(project, () -> {
+                    for (MemberInfo memberInfo : generateContext.methods) {
+                        MethodCreator.createMethod(project, sourceClass, testClass, (PsiMethod) memberInfo.getMember());
+                    }
+                    return testClass;
+                });
+            }
+        });
 
     }
 

@@ -29,7 +29,7 @@ import java.util.Properties;
  */
 public class Generator {
 
-    public static final String ANNOTATION_NAME = "io.github.cweijan.mock.jupiter.HttpTest";
+    public static final String ANNOTATION_NAME = "io.github.cweijan.mock.jupiter.HttpTest(host = \"127.0.0.1\")";
 
     public static PsiClass getOrCreateTestClass(GenerateContext generateContext) {
 
