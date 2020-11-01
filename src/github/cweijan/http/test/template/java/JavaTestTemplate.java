@@ -19,6 +19,7 @@ public class JavaTestTemplate {
 
     private static void initClassTemplate() {
         classTemplate.setText("import static io.github.cweijan.mock.Mocker.*;\n" +
+                "import static io.github.cweijan.mock.request.Generator.*;\n" +
                 "import static io.github.cweijan.mock.Asserter.*;\n" +
                 "import org.junit.jupiter.api.Test;\n" +
                 "import javax.annotation.Resource;\n" +

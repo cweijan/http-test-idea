@@ -6,6 +6,7 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
+import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.psi.util.PsiTypesUtil;
@@ -77,7 +78,7 @@ public class Generator {
                 "@org.junit.jupiter.api.BeforeAll\n" +
                 "public static void beforeRequest(){\n" +
                 "    addRequestInterceptor(request ->{\n" +
-                "        request.header(\"token\",\"c2f678d4873c472c8f99940e8cf39fe4\")\n" +
+                "        request.header(\"token\",\"c2f678d4873c472c8f99940e8cf39fe4\");\n" +
                 "    });\n" +
                 "}";
         PsiMethod beforeMethod = JVMElementFactories.getFactory(generateContext.testClass.getLanguage(), generateContext.project).createMethodFromText(fullMethod, generateContext.testClass);
@@ -148,7 +149,8 @@ public class Generator {
         StringBuilder stringBuilder = new StringBuilder(fieldCode.getNewStatement() + ";\n");
         for (PsiMethod setMethod : PsiClassUtils.extractSetMethods(parameterClass)) {
             stringBuilder.append("    ").append(
-                    String.format("%s.%s(any())", fieldCode.getName(), setMethod.getName())
+                    String.format("%s.%s(request(%s.class))", fieldCode.getName(), setMethod.getName(),
+                            ((PsiClassReferenceType) setMethod.getParameterList().getParameters()[0].getType()).getClassName())
             ).append(";\n");
         }
         fieldCode.setSetCode(stringBuilder.toString());
@@ -174,9 +176,7 @@ public class Generator {
         );
         String fullMethod = "@org.junit.jupiter.api.Test\n" +
                 "void " + methodName + "(){\n" +
-                "    \n" +
                 "    " + methodContent.toString() + "\n" +
-                "    \n" +
                 "}\n" +
                 "\n";
 

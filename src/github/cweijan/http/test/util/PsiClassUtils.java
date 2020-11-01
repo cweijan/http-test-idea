@@ -39,15 +39,13 @@ public class PsiClassUtils {
             return false;
         }
         String qualifiedName = psiClass.getQualifiedName();
-        if (qualifiedName == null || qualifiedName.startsWith("java.")) {
-            return false;
-        }
-        return true;
+        return qualifiedName != null && !qualifiedName.startsWith("java.");
     }
 
     public static boolean isValidSetMethod(PsiMethod m) {
         return m.hasModifierProperty("public") &&
                 !m.hasModifierProperty("static") &&
+                m.getParameterList().getParametersCount()==1 &&
                 (m.getName().startsWith("set") || m.getName().startsWith("with"));
     }
 
