@@ -23,6 +23,8 @@ public class GenerateContext {
 
     public Collection<MemberInfo> methods;
 
-    public PsiClass targetClass;
+    public PsiClass sourceClass;
+
+    public PsiClass testClass;
 
 }

@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 
 /**
  * @author cweijan
@@ -26,6 +27,7 @@ public class MethodCreator {
         PsiMethod testMethod = Generator.generateMethodContent(project, sourceClass,testClass, method);
 
         testClass.add(testMethod);
+        JavaCodeStyleManager.getInstance(project).shortenClassReferences(testMethod);
 
     }
 

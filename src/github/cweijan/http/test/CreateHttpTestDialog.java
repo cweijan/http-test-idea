@@ -50,6 +50,7 @@ import com.intellij.util.SmartList;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBUI;
 import github.cweijan.http.test.core.GenerateContext;
+import github.cweijan.http.test.core.HttpBundle;
 import github.cweijan.http.test.util.ReflectUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -85,7 +86,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
     private EditorTextField myTargetClassNameField;
     private ReferenceEditorComboWithBrowseButton mySuperClassField;
     private ReferenceEditorComboWithBrowseButton myTargetPackageField;
-    private final JCheckBox myGenerateBeforeBox = new JCheckBox(JavaBundle.message("intention.create.test.dialog.setUp"));
+    private final JCheckBox myGenerateBeforeBox = new JCheckBox(HttpBundle.message("intention.generate.before"));
     private final JCheckBox myGenerateAfterBox = new JCheckBox(JavaBundle.message("intention.create.test.dialog.tearDown"));
     private final JCheckBox myShowInheritedMethodsBox = new JCheckBox(JavaBundle.message("intention.create.test.dialog.show.inherited"));
     private final MemberSelectionTable myMethodsTable = new MemberSelectionTable(Collections.emptyList(), null);
@@ -114,7 +115,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
         GenerateContext generateContext = new GenerateContext();
         generateContext.superClassName = getSuperClassName();
         generateContext.createBefore = shouldGeneratedBefore();
-        generateContext.targetClass = getTargetClass();
+        generateContext.sourceClass = getTargetClass();
         generateContext.targetDirector = getTargetDirectory();
         generateContext.methods = getSelectedMethods();
         generateContext.project = myProject;
@@ -348,11 +349,11 @@ public class CreateHttpTestDialog extends DialogWrapper {
         constr.weightx = 0;
         final JLabel membersLabel = new JLabel(JavaBundle.message("intention.create.test.dialog.select.methods"));
         membersLabel.setLabelFor(myMethodsTable);
-        panel.add(membersLabel, constr);
+//        panel.add(membersLabel, constr);
 
         constr.gridx = 1;
         constr.weightx = 1;
-        panel.add(myShowInheritedMethodsBox, constr);
+//        panel.add(myShowInheritedMethodsBox, constr);
 
         constr.insets = insets(1, 8);
         constr.gridy = gridy++;

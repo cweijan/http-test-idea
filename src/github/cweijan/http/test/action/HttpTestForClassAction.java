@@ -42,12 +42,12 @@ public class HttpTestForClassAction extends PsiElementBaseIntentionAction {
 
             GenerateContext generateContext = testDialog.getGenerateContext();
 
-            PsiClass testClass = Generator.generateTestClass(generateContext);
+            PsiClass testClass = Generator.getOrCreateTestClass(generateContext);
 
+            CodeInsightUtil.positionCursorAtLBrace(project, testClass.getContainingFile(), testClass);
             PsiClassUtils.doWrite(project,()->{
                 for (MemberInfo memberInfo : generateContext.methods) {
                     MethodCreator.createMethod(project,sourceClass,testClass,(PsiMethod) memberInfo.getMember());
-                    CodeInsightUtil.positionCursorAtLBrace(project, sourceClass.getContainingFile(), testClass);
                 }
                 return testClass;
             });
