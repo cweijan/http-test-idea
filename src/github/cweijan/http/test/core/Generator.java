@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import static java.lang.String.format;
+
 /**
  * @author cweijan
  * @since 2020/10/30 23:35
@@ -141,7 +143,7 @@ public class Generator {
         StringBuilder stringBuilder = new StringBuilder(fieldCode.getNewStatement() + ";\n");
         for (PsiMethod setMethod : PsiUtils.extractSetMethods(parameterClass)) {
             stringBuilder.append("    ").append(
-                    String.format("%s.%s(request(%s.class))", fieldCode.getName(), setMethod.getName(),
+                    format("%s.%s(request(%s.class))", fieldCode.getName(), setMethod.getName(),
                             ((PsiClassReferenceType) setMethod.getParameterList().getParameters()[0].getType()).getClassName())
             ).append(";\n");
         }
@@ -163,9 +165,12 @@ public class Generator {
         }
         String returnTypeStr = method.getReturnTypeElement().getText();
         String methodName = method.getName();
-        methodContent.append(
-                String.format("%s %s=%s.%s(%s);", returnTypeStr, methodName, sourceField.getName(), methodName, String.join(",", params))
-        );
+        if (returnTypeStr.equals("void")) {
+            methodContent.append(format("%s.%s(%s);", sourceField.getName(), methodName, String.join(",", params)));
+        } else {
+            methodContent.append(format("%s %s=%s.%s(%s);", returnTypeStr, methodName, sourceField.getName(), methodName, String.join(",", params)));
+            methodContent.append(format("Asserter.assertNotNull(%s);", methodName));
+        }
 
         String fullMethod = TestTemplate.getInstance().loadTestMethodTemplate()
                 .replace("${NAME}", methodName)

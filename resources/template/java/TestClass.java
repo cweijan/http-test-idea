@@ -1,6 +1,6 @@
 import static io.github.cweijan.mock.Mocker.*;
-import static io.github.cweijan.mock.Asserter.*;
 import static io.github.cweijan.mock.request.Generator.*;
+import io.github.cweijan.mock.Asserter;
 import org.junit.jupiter.api.Test;
 import javax.annotation.Resource;
 

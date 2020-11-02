@@ -3,7 +3,6 @@ package github.cweijan.http.test.ui;
 
 import com.intellij.CommonBundle;
 import com.intellij.codeInsight.CodeInsightBundle;
-import com.intellij.codeInsight.daemon.impl.quickfix.OrderEntryFix;
 import com.intellij.icons.AllIcons;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.ide.util.TreeClassChooser;
@@ -20,6 +19,8 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.DependencyScope;
+import com.intellij.openapi.roots.JavaProjectModelModificationService;
 import com.intellij.openapi.roots.JavaProjectRootsUtil;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.ui.ComboBox;
@@ -32,6 +33,7 @@ import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.JavaCodeStyleSettings;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.refactoring.PackageWrapper;
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesUtil;
 import com.intellij.refactoring.ui.MemberSelectionTable;
@@ -49,6 +51,7 @@ import com.intellij.util.ObjectUtils;
 import com.intellij.util.SmartList;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBUI;
+import github.cweijan.http.test.config.Constant;
 import github.cweijan.http.test.config.HttpBundle;
 import github.cweijan.http.test.core.GenerateContext;
 import github.cweijan.http.test.util.PsiUtils;
@@ -76,10 +79,10 @@ public class CreateHttpTestDialog extends DialogWrapper {
     private static final String DEFAULT_LIBRARY_SUPERCLASS_NAME_PROPERTY = CreateHttpTestDialog.class.getName() + ".defaultLibrarySuperClass";
     private static final String SHOW_INHERITED_MEMBERS_PROPERTY = CreateHttpTestDialog.class.getName() + ".includeInheritedMembers";
 
-    private final Project myProject;
+    private final Project project;
     private final PsiClass myTargetClass;
     private final PsiPackage myTargetPackage;
-    private final Module myTargetModule;
+    private final Module testModule;
 
     protected PsiDirectory myTargetDirectory;
     private TestFramework mySelectedFramework;
@@ -102,11 +105,11 @@ public class CreateHttpTestDialog extends DialogWrapper {
                                 PsiPackage targetPackage,
                                 Module targetModule) {
         super(project, true);
-        myProject = project;
+        this.project = project;
 
         myTargetClass = targetClass;
         myTargetPackage = targetPackage;
-        myTargetModule = targetModule;
+        testModule = targetModule;
 
         setTitle(title);
         init();
@@ -120,7 +123,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
         generateContext.sourceClass = getTargetClass();
         generateContext.targetDirector = getTargetDirectory();
         generateContext.methods = getSelectedMethods();
-        generateContext.project = myProject;
+        generateContext.project = project;
 
         return generateContext;
     }
@@ -151,7 +154,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
     }
 
     private void onLibrarySelected(TestFramework descriptor) {
-        if (descriptor.isLibraryAttached(myTargetModule)) {
+        if (descriptor.isLibraryAttached(testModule)) {
             myFixLibraryPanel.setVisible(false);
         } else {
             myFixLibraryPanel.setVisible(true);
@@ -220,7 +223,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
     }
 
     private PropertiesComponent getProperties() {
-        return PropertiesComponent.getInstance(myProject);
+        return PropertiesComponent.getInstance(project);
     }
 
     @Override
@@ -253,20 +256,26 @@ public class CreateHttpTestDialog extends DialogWrapper {
         constr.gridy = gridy++;
         constr.gridx = 0;
         constr.weightx = 0;
-        final JLabel libLabel = new JLabel(JavaBundle.message("intention.create.test.dialog.testing.library"));
-        libLabel.setLabelFor(myLibrariesCombo);
-        panel.add(libLabel, constr);
-
-        constr.gridx = 1;
-        constr.weightx = 1;
-        constr.gridwidth = GridBagConstraints.REMAINDER;
-        panel.add(myLibrariesCombo, constr);
+//        final JLabel libLabel = new JLabel(JavaBundle.message("intention.create.test.dialog.testing.library"));
+//        libLabel.setLabelFor(myLibrariesCombo);
+//        panel.add(libLabel, constr);
+//
+//        constr.gridx = 1;
+//        constr.weightx = 1;
+//        constr.gridwidth = GridBagConstraints.REMAINDER;
+//        panel.add(myLibrariesCombo, constr);
 
         myFixLibraryPanel = new JPanel(new BorderLayout());
         myFixLibraryLabel = new JLabel();
         myFixLibraryLabel.setIcon(AllIcons.Actions.IntentionBulb);
         myFixLibraryPanel.add(myFixLibraryLabel, BorderLayout.CENTER);
         myFixLibraryPanel.add(myFixLibraryButton, BorderLayout.EAST);
+        String text = HttpBundle.message("intention.generate.fix.notice");
+        myFixLibraryLabel.setText(text);
+        GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(testModule);
+        PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(Constant.DEPENDENCY_ANNOTATION, scope);
+        myFixLibraryLabel.setVisible(psiClass == null);
+        myFixLibraryButton.setVisible(psiClass == null);
 
         constr.insets = insets(1);
         constr.gridy = gridy++;
@@ -286,7 +295,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
         myTargetClassNameField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void documentChanged(@NotNull DocumentEvent e) {
-                getOKAction().setEnabled(PsiNameHelper.getInstance(myProject).isIdentifier(getClassName()));
+                getOKAction().setEnabled(PsiNameHelper.getInstance(project).isIdentifier(getClassName()));
             }
         });
 
@@ -300,7 +309,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
         constr.weightx = 0;
         panel.add(new JLabel(JavaBundle.message("intention.create.test.dialog.super.class")), constr);
 
-        mySuperClassField = new ReferenceEditorComboWithBrowseButton(new MyChooseSuperClassAction(), null, myProject, true,
+        mySuperClassField = new ReferenceEditorComboWithBrowseButton(new MyChooseSuperClassAction(), null, project, true,
                 JavaCodeFragment.VisibilityChecker.EVERYTHING_VISIBLE, RECENT_SUPERS_KEY);
         mySuperClassField.setMinimumSize(mySuperClassField.getPreferredSize());
         constr.gridx = 1;
@@ -318,7 +327,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
 
 
         String targetPackageName = myTargetPackage != null ? myTargetPackage.getQualifiedName() : "";
-        myTargetPackageField = new PackageNameReferenceEditorCombo(targetPackageName, myProject, RECENTS_KEY, JavaBundle.message("dialog.create.class.package.chooser.title"));
+        myTargetPackageField = new PackageNameReferenceEditorCombo(targetPackageName, project, RECENTS_KEY, JavaBundle.message("dialog.create.class.package.chooser.title"));
 
         new AnAction() {
             @Override
@@ -371,7 +380,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
                 label.setIcon(value.getIcon());
             }
         }));
-        final boolean hasTestRoots = !ModuleRootManager.getInstance(myTargetModule).getSourceRoots(JavaModuleSourceRootTypes.TESTS).isEmpty();
+        final boolean hasTestRoots = !ModuleRootManager.getInstance(testModule).getSourceRoots(JavaModuleSourceRootTypes.TESTS).isEmpty();
         final List<TestFramework> attachedLibraries = new ArrayList<>();
         final String defaultLibrary = getDefaultLibraryName();
         TestFramework defaultDescriptor = null;
@@ -383,7 +392,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
 
         for (final TestFramework descriptor : descriptors) {
             model.addElement(descriptor);
-            if (hasTestRoots && descriptor.isLibraryAttached(myTargetModule)) {
+            if (hasTestRoots && descriptor.isLibraryAttached(testModule)) {
                 attachedLibraries.add(descriptor);
             }
 
@@ -397,7 +406,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
             public void actionPerformed(ActionEvent e) {
                 final Object selectedItem = myLibrariesCombo.getSelectedItem();
                 if (selectedItem != null) {
-                    final DumbService dumbService = DumbService.getInstance(myProject);
+                    final DumbService dumbService = DumbService.getInstance(project);
                     dumbService.setAlternativeResolveEnabled(true);
                     try {
                         onLibrarySelected((TestFramework) selectedItem);
@@ -418,19 +427,12 @@ public class CreateHttpTestDialog extends DialogWrapper {
             myLibrariesCombo.setSelectedItem(preferredFramework);
         }
 
-        myFixLibraryButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (mySelectedFramework instanceof JavaTestFramework) {
-                    ((JavaTestFramework) mySelectedFramework).setupLibrary(myTargetModule)
-                            .onSuccess(__ -> myFixLibraryPanel.setVisible(false));
-                } else {
-                    OrderEntryFix.addJarToRoots(mySelectedFramework.getLibraryPath(), myTargetModule, null);
-                    myFixLibraryPanel.setVisible(false);
-                }
-            }
+        myFixLibraryButton.addActionListener(e -> {
+            JavaProjectModelModificationService.getInstance(project)
+                    .addDependency(testModule, Constant.TESTNG_DESCRIPTOR, DependencyScope.TEST);
+            myFixLibraryLabel.setVisible(false);
+            myFixLibraryButton.setVisible(false);
         });
-
 
         myShowInheritedMethodsBox.addActionListener(new ActionListener() {
             @Override
@@ -488,8 +490,8 @@ public class CreateHttpTestDialog extends DialogWrapper {
 
     @Override
     protected void doOKAction() {
-        RecentsManager.getInstance(myProject).registerRecentEntry(RECENTS_KEY, myTargetPackageField.getText());
-        RecentsManager.getInstance(myProject).registerRecentEntry(RECENT_SUPERS_KEY, mySuperClassField.getText());
+        RecentsManager.getInstance(project).registerRecentEntry(RECENTS_KEY, myTargetPackageField.getText());
+        RecentsManager.getInstance(project).registerRecentEntry(RECENT_SUPERS_KEY, mySuperClassField.getText());
 
         String errorMessage = null;
         try {
@@ -509,7 +511,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
 
         if (errorMessage != null) {
             final int result = Messages
-                    .showOkCancelDialog(myProject, JavaBundle.message("dialog.message.0.update.existing.class", errorMessage), CommonBundle.getErrorTitle(), Messages.getErrorIcon());
+                    .showOkCancelDialog(project, JavaBundle.message("dialog.message.0.update.existing.class", errorMessage), CommonBundle.getErrorTitle(), Messages.getErrorIcon());
             if (result == Messages.CANCEL) {
                 return;
             }
@@ -527,14 +529,14 @@ public class CreateHttpTestDialog extends DialogWrapper {
     @Nullable
     private PsiDirectory selectTargetDirectory() throws IncorrectOperationException {
         final String packageName = getPackageName();
-        final PackageWrapper targetPackage = new PackageWrapper(PsiManager.getInstance(myProject), packageName);
+        final PackageWrapper targetPackage = new PackageWrapper(PsiManager.getInstance(project), packageName);
 
         final VirtualFile selectedRoot = ReadAction.compute(() -> {
-            final List<VirtualFile> testFolders = ReflectUtil.invoke(CreateTestAction.class, "computeTestRoots", myTargetModule);
+            final List<VirtualFile> testFolders = ReflectUtil.invoke(CreateTestAction.class, "computeTestRoots", testModule);
             List<VirtualFile> roots;
             if (testFolders.isEmpty()) {
                 roots = new ArrayList<>();
-                List<String> urls = ReflectUtil.invoke(CreateTestAction.class, "computeSuitableTestRootUrls", myTargetModule);
+                List<String> urls = ReflectUtil.invoke(CreateTestAction.class, "computeSuitableTestRootUrls", testModule);
                 for (String url : urls) {
                     try {
                         ContainerUtil.addIfNotNull(roots, VfsUtil.createDirectories(VfsUtilCore.urlToPath(url)));
@@ -543,7 +545,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
                     }
                 }
                 if (roots.isEmpty()) {
-                    JavaProjectRootsUtil.collectSuitableDestinationSourceRoots(myTargetModule, roots);
+                    JavaProjectRootsUtil.collectSuitableDestinationSourceRoots(testModule, roots);
                 }
                 if (roots.isEmpty()) return null;
             } else {
@@ -560,15 +562,15 @@ public class CreateHttpTestDialog extends DialogWrapper {
 
         if (selectedRoot == null) return null;
 
-        return WriteCommandAction.writeCommandAction(myProject).withName(CodeInsightBundle.message("create.directory.command"))
+        return WriteCommandAction.writeCommandAction(project).withName(CodeInsightBundle.message("create.directory.command"))
                 .compute(() -> RefactoringUtil.createPackageDirectoryInSourceRoot(targetPackage, selectedRoot));
     }
 
     @Nullable
     private PsiDirectory chooseDefaultDirectory(PsiDirectory[] directories, List<VirtualFile> roots) {
         List<PsiDirectory> dirs = new ArrayList<>();
-        PsiManager psiManager = PsiManager.getInstance(myProject);
-        for (VirtualFile file : ModuleRootManager.getInstance(myTargetModule).getSourceRoots(JavaSourceRootType.TEST_SOURCE)) {
+        PsiManager psiManager = PsiManager.getInstance(project);
+        for (VirtualFile file : ModuleRootManager.getInstance(testModule).getSourceRoots(JavaSourceRootType.TEST_SOURCE)) {
             final PsiDirectory dir = psiManager.findDirectory(file);
             if (dir != null) {
                 dirs.add(dir);
@@ -593,8 +595,8 @@ public class CreateHttpTestDialog extends DialogWrapper {
                 }
             }
         }
-        return ModuleManager.getInstance(myProject)
-                .getModuleDependentModules(myTargetModule)
+        return ModuleManager.getInstance(project)
+                .getModuleDependentModules(testModule)
                 .stream().flatMap(module -> ModuleRootManager.getInstance(module).getSourceRoots(JavaSourceRootType.TEST_SOURCE).stream())
                 .map(root -> psiManager.findDirectory(root)).findFirst().orElse(null);
     }
@@ -607,7 +609,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
     private class MyChooseSuperClassAction implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            TreeClassChooserFactory f = TreeClassChooserFactory.getInstance(myProject);
+            TreeClassChooserFactory f = TreeClassChooserFactory.getInstance(project);
             TreeClassChooser dialog =
                     f.createAllProjectScopeChooser(JavaBundle.message("intention.create.test.dialog.choose.super.class"));
             dialog.showDialog();
