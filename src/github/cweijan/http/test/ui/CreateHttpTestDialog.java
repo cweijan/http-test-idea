@@ -68,8 +68,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.*;
 import java.util.stream.Collectors;
 
 public class CreateHttpTestDialog extends DialogWrapper {
@@ -91,7 +93,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
     private EditorTextField myTargetClassNameField;
     private ReferenceEditorComboWithBrowseButton mySuperClassField;
     private ReferenceEditorComboWithBrowseButton myTargetPackageField;
-    private final JCheckBox myGenerateBeforeBox = new JCheckBox(HttpBundle.message("intention.generate.before"));
+    private final JCheckBox myGenerateBeforeBox = new JCheckBox(HttpBundle.message("intention.generate.before"),true);
     private final JCheckBox myGenerateAfterBox = new JCheckBox(JavaBundle.message("intention.create.test.dialog.tearDown"));
     private final JCheckBox myShowInheritedMethodsBox = new JCheckBox(JavaBundle.message("intention.create.test.dialog.show.inherited"));
     private final MemberSelectionTable myMethodsTable = new MemberSelectionTable(Collections.emptyList(), null);
@@ -185,15 +187,9 @@ public class CreateHttpTestDialog extends DialogWrapper {
     private void updateMethodsTable() {
         List<MemberInfo> methods = TestIntegrationUtils.extractClassMethods(
                 myTargetClass, myShowInheritedMethodsBox.isSelected()).stream().filter(memberInfo -> PsiUtils.isRequest(memberInfo.getMember())).collect(Collectors.toList());
-
-        Set<PsiMember> selectedMethods = new HashSet<>();
-        for (MemberInfo each : myMethodsTable.getSelectedMemberInfos()) {
-            selectedMethods.add(each.getMember());
-        }
         for (MemberInfo each : methods) {
-            each.setChecked(selectedMethods.contains(each.getMember()));
+            each.setChecked(true);
         }
-
         myMethodsTable.setMemberInfos(methods);
     }
 
