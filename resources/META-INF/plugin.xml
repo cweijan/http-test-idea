@@ -1,5 +1,5 @@
 <idea-plugin>
-  <id>com.your.company.unique.plugin.id</id>
+  <id>github.cweijan.plugin.http.test</id>
   <name>Http-Test-Creator</name>
   <version>1.0</version>
   <vendor email="cweijan@163.com" url="">cweijan</vendor>
