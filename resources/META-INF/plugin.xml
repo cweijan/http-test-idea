@@ -1,6 +1,6 @@
 <idea-plugin>
   <id>github.cweijan.plugin.http.test</id>
-  <name>Http-Test-Creator</name>
+  <name>Http Test Support</name>
   <version>1.0</version>
   <vendor email="cweijan@163.com" url="">cweijan</vendor>
 

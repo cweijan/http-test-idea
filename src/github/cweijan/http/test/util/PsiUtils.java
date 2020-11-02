@@ -86,7 +86,7 @@ public class PsiUtils {
 
     public static boolean isController(PsiClass psiClass) {
         String[] qualifiedNames = new String[]{"org.springframework.stereotype.Controller",
-                "org.springframework.web.bind.annotation"};
+                "org.springframework.web.bind.annotation.RestController"};
         while (psiClass != null) {
             for (PsiAnnotation annotation : psiClass.getAnnotations()) {
                 for (String qualifiedName : qualifiedNames) {
