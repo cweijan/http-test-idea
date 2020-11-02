@@ -22,6 +22,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+import static github.cweijan.http.test.util.PsiUtils.checkAndAddModule;
+
 /**
  * @author cweijan
  * @since 2020/10/31 21:53
@@ -39,6 +41,7 @@ public class HttpTestForClassAction extends PsiElementBaseIntentionAction {
 
         CreateHttpTestDialog testDialog = new CreateHttpTestDialog(project, "CreateHttpTest", sourceClass, srcPackage, testModule);
 
+        checkAndAddModule(project, sourceClass);
 
         SwingUtilities.invokeLater(()-> {
             if (testDialog.showAndGet()) {

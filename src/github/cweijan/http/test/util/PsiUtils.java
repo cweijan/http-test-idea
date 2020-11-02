@@ -17,12 +17,19 @@ package github.cweijan.http.test.util;
 import com.intellij.codeInsight.CodeInsightBundle;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.DependencyScope;
+import com.intellij.openapi.roots.JavaProjectModelModificationService;
 import com.intellij.openapi.util.Computable;
 import com.intellij.psi.*;
 import com.intellij.psi.impl.source.PostprocessReformattingAspect;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.testIntegration.createTest.CreateTestAction;
+import github.cweijan.http.test.config.Constant;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -127,4 +134,14 @@ public class PsiUtils {
         }, CodeInsightBundle.message("intention.create.test", new Object[0]), PsiUtils.class);
     }
 
+    public static void checkAndAddModule(@NotNull Project project, PsiClass sourceClass) {
+        final Module srcModule = ModuleUtilCore.findModuleForPsiElement(sourceClass);
+        Module testModule = CreateTestAction.suggestModuleForTests(project, srcModule);
+        GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(testModule);
+        PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(Constant.DEPENDENCY_ANNOTATION, scope);
+        if (psiClass == null) {
+            JavaProjectModelModificationService.getInstance(project)
+                    .addDependency(testModule, Constant.TESTNG_DESCRIPTOR, DependencyScope.TEST);
+        }
+    }
 }
