@@ -93,7 +93,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
     private EditorTextField myTargetClassNameField;
     private ReferenceEditorComboWithBrowseButton mySuperClassField;
     private ReferenceEditorComboWithBrowseButton myTargetPackageField;
-    private final JCheckBox myGenerateBeforeBox = new JCheckBox(HttpBundle.message("intention.generate.before"),true);
+    private final JCheckBox myGenerateBeforeBox = new JCheckBox(HttpBundle.message("intention.generate.before"),false);
     private final JCheckBox myGenerateAfterBox = new JCheckBox(JavaBundle.message("intention.create.test.dialog.tearDown"));
     private final JCheckBox myShowInheritedMethodsBox = new JCheckBox(JavaBundle.message("intention.create.test.dialog.show.inherited"));
     private final MemberSelectionTable myMethodsTable = new MemberSelectionTable(Collections.emptyList(), null);

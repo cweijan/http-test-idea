@@ -9,6 +9,7 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
+import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.refactoring.util.classMembers.MemberInfo;
 import com.intellij.testIntegration.createTest.CreateTestAction;
 import com.intellij.util.IncorrectOperationException;
@@ -52,6 +53,7 @@ public class HttpTestForClassAction extends PsiElementBaseIntentionAction {
                     for (MemberInfo memberInfo : generateContext.methods) {
                         MethodCreator.createMethod(project, sourceClass, testClass, (PsiMethod) memberInfo.getMember());
                     }
+                    JavaCodeStyleManager.getInstance(project).shortenClassReferences(testClass);
                     return testClass;
                 });
             }

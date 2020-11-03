@@ -10,6 +10,7 @@ import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.GlobalSearchScopesCore;
 import com.intellij.psi.util.PsiTypesUtil;
+import com.intellij.psi.util.PsiUtil;
 import com.intellij.testIntegration.createTest.CreateTestAction;
 import com.intellij.testIntegration.createTest.JavaTestGenerator;
 import github.cweijan.http.test.template.TestTemplate;
@@ -121,30 +122,40 @@ public class Generator {
 
     public static void importClass(PsiJavaFile psiJavaFile, PsiMethod psiMethod) {
 
-        PsiClass psiClass = PsiTypesUtil.getPsiClass(psiMethod.getReturnType());
-        if (psiClass != null) {
-            psiJavaFile.importClass(psiClass);
-        }
+        PsiType type = psiMethod.getReturnType();
+        importType(psiJavaFile, type);
 
         for (PsiParameter parameter : psiMethod.getParameterList().getParameters()) {
-            PsiClass parameterClass = PsiTypesUtil.getPsiClass(parameter.getType());
-            if (parameterClass != null) {
-                psiJavaFile.importClass(parameterClass);
-            }
+            importType(psiJavaFile, parameter.getType());
         }
 
     }
 
-    public static FieldCode generateSetter(PsiParameter parameter) {
+    private static void importType(PsiJavaFile psiJavaFile, PsiType type) {
+        PsiClass psiClass = PsiTypesUtil.getPsiClass(type);
+        if (psiClass != null) {
+            psiJavaFile.importClass(psiClass);
+            PsiType genericType = PsiUtil.extractIterableTypeParameter(type, false);
+            if (genericType != null) {
+                PsiClass genericClass = PsiTypesUtil.getPsiClass(genericType);
+                if (genericClass != null)
+                    psiJavaFile.importClass(genericClass);
+            }
+        }
+    }
+
+    public static FieldCode generateSetter(PsiJavaFile psiJavaFile, PsiParameter parameter) {
+
+        FieldCode fieldCode = new FieldCode(psiJavaFile,parameter.getType());
 
         PsiClass parameterClass = PsiTypesUtil.getPsiClass(parameter.getType());
-        FieldCode fieldCode = new FieldCode(parameterClass);
-
-        StringBuilder stringBuilder = new StringBuilder(fieldCode.getNewStatement() + ";\n");
+        StringBuilder stringBuilder = new StringBuilder(fieldCode.getNewStatement() + "\n");
         for (PsiMethod setMethod : PsiUtils.extractSetMethods(parameterClass)) {
+            PsiType parameterType = setMethod.getParameterList().getParameters()[0].getType();
+            importType(psiJavaFile, parameterType);
             stringBuilder.append("    ").append(
                     format("%s.%s(request(%s.class))", fieldCode.getName(), setMethod.getName(),
-                            ((PsiClassReferenceType) setMethod.getParameterList().getParameters()[0].getType()).getClassName())
+                            ((PsiClassReferenceType) parameterType).getClassName())
             ).append(";\n");
         }
         fieldCode.setSetCode(stringBuilder.toString());
@@ -152,14 +163,18 @@ public class Generator {
         return fieldCode;
     }
 
-    public static PsiMethod generateMethodContent(Project project, PsiClass sourceClass, PsiClass testClass, PsiMethod method) {
+    public static PsiMethod generateMethodContent(Project project, PsiJavaFile psiJavaFile, PsiClass sourceClass, PsiClass testClass, PsiMethod method) {
 
         PsiField sourceField = findField(testClass, sourceClass);
 
         ArrayList<String> params = new ArrayList<>();
         StringBuilder methodContent = new StringBuilder();
         for (PsiParameter parameter : method.getParameterList().getParameters()) {
-            FieldCode fieldCode = generateSetter(parameter);
+            PsiClass parameterClass = PsiTypesUtil.getPsiClass(parameter.getType());
+            if (parameterClass != null) {
+                ((PsiJavaFile) testClass.getContainingFile()).importClass(parameterClass);
+            }
+            FieldCode fieldCode = generateSetter(psiJavaFile,parameter);
             methodContent.append(fieldCode.getSetCode());
             params.add(fieldCode.getName());
         }

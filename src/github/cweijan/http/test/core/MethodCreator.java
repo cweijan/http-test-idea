@@ -22,9 +22,9 @@ public class MethodCreator {
             }
         }
 
-        PsiJavaFile containingFile = (PsiJavaFile) testClass.getContainingFile();
-        Generator.importClass(containingFile, method);
-        PsiMethod testMethod = Generator.generateMethodContent(project, sourceClass,testClass, method);
+        PsiJavaFile psiJavaFile = (PsiJavaFile) testClass.getContainingFile();
+        Generator.importClass(psiJavaFile, method);
+        PsiMethod testMethod = Generator.generateMethodContent(project, psiJavaFile, sourceClass, testClass, method);
 
         testClass.add(testMethod);
         JavaCodeStyleManager.getInstance(project).shortenClassReferences(testMethod);
