@@ -21,6 +21,10 @@ public class Constant {
      */
     public static final String DEPENDENCY_ANNOTATION = "io.github.cweijan.mock.jupiter.HttpTest";
     /**
+     * lombok依赖检测类
+     */
+    public static final String LOMBOK_DEPENDENCY_ANNOTATION = "lombok.Data";
+    /**
      * 依赖
      */
     public static final ExternalLibraryDescriptor TESTNG_DESCRIPTOR =

@@ -24,6 +24,9 @@
     <intentionAction>
       <className>github.cweijan.http.test.action.HttpTestForClassAction</className>
     </intentionAction>
+      <intentionAction>
+          <className>github.cweijan.http.test.action.LombokCreateAction</className>
+      </intentionAction>
   </extensions>
 
   <actions>

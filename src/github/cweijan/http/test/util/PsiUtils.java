@@ -87,6 +87,10 @@ public class PsiUtils {
     public static boolean isController(PsiClass psiClass) {
         String[] qualifiedNames = new String[]{"org.springframework.stereotype.Controller",
                 "org.springframework.web.bind.annotation.RestController"};
+        return hasAnnotation(psiClass, qualifiedNames);
+    }
+
+    public static boolean hasAnnotation(PsiClass psiClass, String[] qualifiedNames) {
         while (psiClass != null) {
             for (PsiAnnotation annotation : psiClass.getAnnotations()) {
                 for (String qualifiedName : qualifiedNames) {
@@ -124,7 +128,7 @@ public class PsiUtils {
     }
 
 
-    public static PsiPackage getPackage(PsiElement psiElement){
+    public static PsiPackage getPackage(PsiElement psiElement) {
         return JavaDirectoryService.getInstance().getPackage(psiElement.getContainingFile().getContainingDirectory());
     }
 
