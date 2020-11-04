@@ -44,10 +44,11 @@ public class LombokCreateAction extends PsiElementBaseIntentionAction {
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
 
-        PsiElement psiClass = psiElement.getParent();
-        if (!(psiClass instanceof PsiClass)) {
+        PsiElement parentElement = psiElement.getParent();
+        if (!(parentElement instanceof PsiClass)) {
             return false;
         }
+        PsiClass psiClass= (PsiClass) parentElement;
 
         // 如果没lombok依赖, 跳过
         final Module srcModule = ModuleUtilCore.findModuleForPsiElement(psiClass);
@@ -57,6 +58,9 @@ public class LombokCreateAction extends PsiElementBaseIntentionAction {
             return false;
         }
 
+        if(psiClass.isInterface() || psiClass.isEnum() || psiClass.isAnnotationType()){
+            return false;
+        }
 
         // 如果有指定注解, 跳过
         boolean hasAnnotation = PsiUtils.hasAnnotation((PsiClass) psiClass,

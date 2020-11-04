@@ -27,6 +27,9 @@
       <intentionAction>
           <className>github.cweijan.http.test.action.LombokCreateAction</className>
       </intentionAction>
+    <intentionAction>
+      <className>github.cweijan.http.test.action.FieldToPrivateAction</className>
+    </intentionAction>
   </extensions>
 
   <actions>
