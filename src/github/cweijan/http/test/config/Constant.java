@@ -15,6 +15,7 @@ public class Constant {
      * 上下文菜单文字
      */
     public static final String TEST_TEXT = "创建Http测试用例";
+    public static final String PARAM_CREATE_TEXT = "创建请求参数";
     /**
      * 依赖检测类
      */

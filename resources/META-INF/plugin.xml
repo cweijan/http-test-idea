@@ -19,6 +19,9 @@
       <className>github.cweijan.http.test.action.HttpTestForMethodAction</className>
     </intentionAction>
     <intentionAction>
+      <className>github.cweijan.http.test.action.HttpParamCreateAction</className>
+    </intentionAction>
+    <intentionAction>
       <className>github.cweijan.http.test.action.HttpTestForClassAction</className>
     </intentionAction>
   </extensions>
