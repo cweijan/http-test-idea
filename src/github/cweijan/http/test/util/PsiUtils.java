@@ -124,6 +124,10 @@ public class PsiUtils {
     }
 
 
+    public static PsiPackage getPackage(PsiElement psiElement){
+        return JavaDirectoryService.getInstance().getPackage(psiElement.getContainingFile().getContainingDirectory());
+    }
+
     public static void doWrite(Project project, Computable<PsiElement> computable) {
         CommandProcessor.getInstance().executeCommand(project, () -> {
             DumbService.getInstance(project).withAlternativeResolveEnabled(() -> {

@@ -3,12 +3,9 @@ package github.cweijan.http.test.action;
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 import com.intellij.codeInspection.util.IntentionFamilyName;
 import com.intellij.codeInspection.util.IntentionName;
-import com.intellij.database.dialects.mssql.model.MsExtendedPropertiesHolder;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiMethod;
+import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import github.cweijan.http.test.config.Constant;
@@ -26,12 +23,22 @@ public class HttpParamCreateAction extends PsiElementBaseIntentionAction {
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
 
         PsiMethod method = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
+        String currentPackage = PsiUtils.getPackage(method).getParentPackage().getQualifiedName();
 
-        String methodRequestClass = WordUtils.capitalize(method.getName()) + "DTO";
-        String methodRequestParam = method.getName() + "DTO";
+        String requestClass = WordUtils.capitalize(method.getName()) + "DTO";
+        String requestClassFull = currentPackage + ".dto." + requestClass;
+        String returnClass = WordUtils.capitalize(method.getName()) + "VO";
+        String returnClassFull = currentPackage + ".vo." + returnClass;
 
-//        method.getModifierList().add()
+        PsiElementFactory elementFactory = PsiElementFactory.getInstance(project);
 
+        PsiParameter parameter = elementFactory.createParameterFromText(requestClassFull + " " + method.getName() + "DTO", method);
+        method.getParameterList().add(parameter);
+
+        if (method.getReturnType().getCanonicalText().equals("void")) {
+            PsiTypeElement returnType = elementFactory.createTypeElement(elementFactory.createTypeByFQClassName(returnClassFull));
+            method.getReturnTypeElement().replace(returnType);
+        }
 
     }
 

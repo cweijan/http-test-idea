@@ -17,12 +17,9 @@ import java.nio.charset.StandardCharsets;
  */
 public interface TestTemplate {
 
-    String CLASS_PREFIX = "HTTP_TEST_CLASS_";
-    String METHOD_PREFIX = "HTTP_TEST_METHOD_";
-
-    String BEFORE_PREFIX = "HTTP_TEST_BEFORE_";
-
     FileTemplate loadTestClassTemplate();
+
+    FileTemplate loadEmptyClassTemplate();
 
     String loadTestMethodTemplate();
 
@@ -42,8 +39,8 @@ public interface TestTemplate {
         }
     }
 
-    default CustomFileTemplate loadTemplate(String prefix, String filePath) {
-        CustomFileTemplate fileTemplate = new CustomFileTemplate(prefix + this.extension(), this.extension());
+    default CustomFileTemplate loadTemplate(String filePath) {
+        CustomFileTemplate fileTemplate = new CustomFileTemplate(filePath, this.extension());
         fileTemplate.setText(loadTemplateStr(filePath));
         return fileTemplate;
     }
