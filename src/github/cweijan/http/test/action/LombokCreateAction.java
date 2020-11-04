@@ -26,6 +26,12 @@ public class LombokCreateAction extends PsiElementBaseIntentionAction {
         PsiClass psiClass = (PsiClass) psiElement.getParent();
 
         PsiModifierList classModifierList = psiClass.getModifierList();
+
+        PsiClass superClass = psiClass.getSuperClass();
+        if (superClass != null && !superClass.getName().equals("Object")) {
+            classModifierList.addAnnotation("lombok.EqualsAndHashCode(callSuper = true)");
+        }
+
         classModifierList.addAnnotation("lombok.AllArgsConstructor");
         classModifierList.addAnnotation("lombok.NoArgsConstructor");
         classModifierList.addAnnotation("lombok.Builder");
