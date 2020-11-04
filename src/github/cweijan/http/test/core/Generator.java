@@ -146,7 +146,7 @@ public class Generator {
 
     public static FieldCode generateSetter(PsiJavaFile psiJavaFile, PsiParameter parameter) {
 
-        FieldCode fieldCode = new FieldCode(psiJavaFile,parameter.getType());
+        FieldCode fieldCode = new FieldCode(psiJavaFile, parameter.getType());
 
         PsiClass parameterClass = PsiTypesUtil.getPsiClass(parameter.getType());
         StringBuilder stringBuilder = new StringBuilder(fieldCode.getNewStatement() + "\n");
@@ -154,13 +154,22 @@ public class Generator {
             PsiType parameterType = setMethod.getParameterList().getParameters()[0].getType();
             importType(psiJavaFile, parameterType);
             stringBuilder.append("    ").append(
-                    format("%s.%s(request(%s.class))", fieldCode.getName(), setMethod.getName(),
-                            ((PsiClassReferenceType) parameterType).getClassName())
+                    format("%s.%s(request(%s.class))", fieldCode.getName(), setMethod.getName(), getFullName(parameterType))
             ).append(";\n");
         }
         fieldCode.setSetCode(stringBuilder.toString());
 
         return fieldCode;
+    }
+
+    private static String getFullName(PsiType type) {
+        if (type instanceof PsiClassReferenceType) {
+            return ((PsiClassReferenceType) type).getClassName();
+        } else if (type instanceof PsiPrimitiveType) {
+            return ((PsiPrimitiveType) type).getBoxedTypeName();
+        }
+
+        return type.getCanonicalText();
     }
 
     public static PsiMethod generateMethodContent(Project project, PsiJavaFile psiJavaFile, PsiClass sourceClass, PsiClass testClass, PsiMethod method) {
@@ -174,7 +183,7 @@ public class Generator {
             if (parameterClass != null) {
                 ((PsiJavaFile) testClass.getContainingFile()).importClass(parameterClass);
             }
-            FieldCode fieldCode = generateSetter(psiJavaFile,parameter);
+            FieldCode fieldCode = generateSetter(psiJavaFile, parameter);
             methodContent.append(fieldCode.getSetCode());
             params.add(fieldCode.getName());
         }
