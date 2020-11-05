@@ -154,7 +154,7 @@ public class Generator {
             PsiType parameterType = setMethod.getParameterList().getParameters()[0].getType();
             importType(psiJavaFile, parameterType);
             stringBuilder.append("    ").append(
-                    format("%s.%s(request(%s.class))", fieldCode.getName(), setMethod.getName(), getFullName(parameterType))
+                    format("%s.%s(mock(%s.class))", fieldCode.getName(), setMethod.getName(), getFullName(parameterType))
             ).append(";\n");
         }
         fieldCode.setSetCode(stringBuilder.toString());
