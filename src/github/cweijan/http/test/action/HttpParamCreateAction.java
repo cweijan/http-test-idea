@@ -32,11 +32,11 @@ public class HttpParamCreateAction extends PsiElementBaseIntentionAction {
 
         PsiElementFactory elementFactory = PsiElementFactory.getInstance(project);
 
-        PsiParameter parameter = elementFactory.createParameterFromText(requestClassFull + " " + method.getName() + "DTO", method);
+        PsiParameter parameter = elementFactory.createParameterFromText(requestClass + " " + method.getName() + "DTO", method);
         method.getParameterList().add(parameter);
 
         if (method.getReturnType().getCanonicalText().equals("void")) {
-            PsiTypeElement returnType = elementFactory.createTypeElement(elementFactory.createTypeByFQClassName(returnClassFull));
+            PsiTypeElement returnType = elementFactory.createTypeElement(elementFactory.createTypeByFQClassName(returnClass));
             method.getReturnTypeElement().replace(returnType);
         }
 
