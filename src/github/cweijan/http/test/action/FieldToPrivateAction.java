@@ -48,7 +48,7 @@ public class FieldToPrivateAction extends PsiElementBaseIntentionAction {
         }
         PsiClass psiClass = (PsiClass) parentElement;
 
-        if (psiClass.isInterface() || psiClass.isEnum() || psiClass.isAnnotationType()) {
+        if (psiClass.isInterface() || psiClass.isRecord() || psiClass.isEnum() || psiClass.isAnnotationType()) {
             return false;
         }
 

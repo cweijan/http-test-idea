@@ -21,6 +21,8 @@ public interface TestTemplate {
 
     FileTemplate loadEmptyClassTemplate();
 
+    String loadControllerMethodTemplate();
+
     String loadTestMethodTemplate();
 
     String loadBeforeMethodTemplate();

@@ -33,6 +33,9 @@
     <intentionAction>
       <className>github.cweijan.http.test.action.FieldToPrivateAction</className>
     </intentionAction>
+    <intentionAction>
+      <className>github.cweijan.http.test.action.ServiceInjectAction</className>
+    </intentionAction>
   </extensions>
 
   <actions>

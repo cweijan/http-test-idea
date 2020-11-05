@@ -36,6 +36,11 @@ public class JavaTestTemplate implements TestTemplate {
     }
 
     @Override
+    public String loadControllerMethodTemplate() {
+        return loadTemplateStr("java/ControllerMethod");
+    }
+
+    @Override
     public String loadTestMethodTemplate() {
         if (testMethod == null)
             testMethod = loadTemplateStr("java/TestMethod");

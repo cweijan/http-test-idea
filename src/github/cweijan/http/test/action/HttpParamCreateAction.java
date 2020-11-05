@@ -40,6 +40,8 @@ public class HttpParamCreateAction extends PsiElementBaseIntentionAction {
             method.getReturnTypeElement().replace(returnType);
         }
 
+//        PsiUtil.setModifierProperty(method, PsiModifier.PUBLIC, true);
+
     }
 
     @Override
