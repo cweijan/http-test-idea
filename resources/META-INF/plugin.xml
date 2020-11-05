@@ -5,8 +5,11 @@
   <vendor email="cweijan@163.com" url="">cweijan</vendor>
 
   <description><![CDATA[
-     在方法的ContextAction增加创建Http测试菜单, 用于快速生成Http测试用例
-    ]]></description>
+    This plugin create many context action to enhance development experience:
+    1. Make all field to private.
+    2. Bind all lombok annotation to class.
+    3. Create http test to context action.
+]]></description>
 
   <idea-version since-build="183"/>
 
