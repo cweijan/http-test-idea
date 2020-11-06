@@ -12,6 +12,7 @@ import com.intellij.psi.util.PsiUtil;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.Query;
 import github.cweijan.http.test.template.TestTemplate;
+import github.cweijan.http.test.util.MvcUtil;
 import github.cweijan.http.test.util.PsiUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,16 +55,13 @@ public class ServiceInjectAction extends HttpParamCreateAction {
                     .replace(":param", parameter.getName());
 
             PsiMethod controllerMethod = JVMElementFactories.getFactory(psiClass.getLanguage(), project).createMethodFromText(template, psiClass);
-            if (method.getName().matches("^(list|get|query|select|find)")) {
-                controllerMethod.getModifierList().addAnnotation("org.springframework.web.bind.annotation.GetMapping(\"/" + method.getName() + "\")");
-            } else {
-                controllerMethod.getModifierList().addAnnotation("org.springframework.web.bind.annotation.PostMapping(\"/" + method.getName() + "\")");
-            }
+            controllerMethod.getModifierList().addAnnotation(MvcUtil.getAnnotationByName(method.getName()));
 
             String interfaceTemplate = ":return :name(:Param :param);".replace(":name", method.getName())
                     .replace(":return", method.getReturnType().getCanonicalText())
                     .replace(":Param", parameter.getType().getCanonicalText())
-                    .replace(":param", parameter.getName());;
+                    .replace(":param", parameter.getName());
+
             PsiMethod interfaceMethod = JVMElementFactories.getFactory(psiClass.getLanguage(), project)
                     .createMethodFromText(interfaceTemplate, psiClass);
             for (PsiClass psiInterface : sourceClass.getInterfaces()) {
@@ -82,6 +80,9 @@ public class ServiceInjectAction extends HttpParamCreateAction {
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
         if (super.isAvailable(project, editor, element)) {
+            return false;
+        }
+        if (true) {
             return false;
         }
         PsiMethod method = PsiTreeUtil.getParentOfType(element, PsiMethod.class);

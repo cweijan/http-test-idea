@@ -16,6 +16,7 @@ import github.cweijan.http.test.config.Constant;
 import github.cweijan.http.test.core.GenerateContext;
 import github.cweijan.http.test.core.Generator;
 import github.cweijan.http.test.core.MethodCreator;
+import github.cweijan.http.test.util.MvcUtil;
 import github.cweijan.http.test.util.PsiUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,8 +57,8 @@ public class HttpTestForMethodAction extends PsiElementBaseIntentionAction {
         if (method == null || psiClass == null) {
             return false;
         }
-        return PsiUtils.isController(psiClass) &&
-                PsiUtils.isRequest(method);
+        return MvcUtil.isSimpleClass(psiClass) && MvcUtil.isController(psiClass) &&
+                MvcUtil.isRequest(method);
     }
 
     @NotNull

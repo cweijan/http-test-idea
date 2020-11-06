@@ -1,11 +1,11 @@
 package github.cweijan.http.test.core;
 
-import com.intellij.codeInsight.CodeInsightUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
+import github.cweijan.http.test.util.ListUtil;
 
 /**
  * @author cweijan
@@ -15,18 +15,19 @@ public class MethodCreator {
 
     public static void createMethod(Project project, PsiClass sourceClass, PsiClass testClass, PsiMethod method) {
 
-        for (PsiMethod existsTestMethod : testClass.getMethods()) {
-            if (method.getName().equals(existsTestMethod.getName())) {
-                CodeInsightUtil.positionCursor(project, testClass.getContainingFile(), existsTestMethod);
-                return;
-            }
-        }
+        PsiMethod existsMethod = ListUtil.findOne(testClass.getMethods(), (existsTestMethod) ->
+                method.getName().equals(existsTestMethod.getName())
+        );
 
         PsiJavaFile psiJavaFile = (PsiJavaFile) testClass.getContainingFile();
         Generator.importClass(psiJavaFile, method);
         PsiMethod testMethod = Generator.generateMethodContent(project, psiJavaFile, sourceClass, testClass, method);
 
-        testClass.add(testMethod);
+        if (existsMethod != null) {
+            existsMethod.replace(testMethod);
+        } else {
+            testClass.add(testMethod);
+        }
         JavaCodeStyleManager.getInstance(project).shortenClassReferences(testMethod);
 
     }

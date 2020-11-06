@@ -6,9 +6,12 @@ import com.intellij.codeInspection.util.IntentionName;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
+import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.psi.util.PsiUtil;
 import com.intellij.util.IncorrectOperationException;
 import github.cweijan.http.test.config.Constant;
+import github.cweijan.http.test.util.MvcUtil;
 import github.cweijan.http.test.util.PsiUtils;
 import org.apache.commons.lang.WordUtils;
 import org.jetbrains.annotations.NotNull;
@@ -23,6 +26,7 @@ public class HttpParamCreateAction extends PsiElementBaseIntentionAction {
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
 
         PsiMethod method = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
+        PsiClass sourceClass = PsiUtils.getContainingClass(element);
         String currentPackage = PsiUtils.getPackage(method).getParentPackage().getQualifiedName();
 
         String requestClass = WordUtils.capitalize(method.getName()) + "DTO";
@@ -40,7 +44,13 @@ public class HttpParamCreateAction extends PsiElementBaseIntentionAction {
             method.getReturnTypeElement().replace(returnType);
         }
 
-//        PsiUtil.setModifierProperty(method, PsiModifier.PUBLIC, true);
+        if(MvcUtil.isController(sourceClass)){
+            String annotationByName = MvcUtil.getAnnotationByName(method.getName());
+            method.getModifierList().addAnnotation(annotationByName);
+            JavaCodeStyleManager.getInstance(project).shortenClassReferences(method);
+        }
+
+        PsiUtil.setModifierProperty(method, PsiModifier.PUBLIC, true);
 
     }
 
@@ -50,7 +60,7 @@ public class HttpParamCreateAction extends PsiElementBaseIntentionAction {
         if (method == null) {
             return false;
         }
-        return PsiUtils.isRequest(method) && method.getParameterList().getParametersCount() == 0;
+        return method.getParameterList().getParametersCount() == 0;
     }
 
     @NotNull

@@ -18,6 +18,7 @@ import github.cweijan.http.test.core.GenerateContext;
 import github.cweijan.http.test.core.Generator;
 import github.cweijan.http.test.core.MethodCreator;
 import github.cweijan.http.test.ui.CreateHttpTestDialog;
+import github.cweijan.http.test.util.MvcUtil;
 import github.cweijan.http.test.util.PsiUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,7 +66,7 @@ public class HttpTestForClassAction extends PsiElementBaseIntentionAction {
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
 
         PsiElement psiClass = psiElement.getParent();
-        return (psiClass instanceof PsiClass) && PsiUtils.isController((PsiClass) psiClass);
+        return (psiClass instanceof PsiClass) && MvcUtil.isController((PsiClass) psiClass);
     }
 
     @NotNull

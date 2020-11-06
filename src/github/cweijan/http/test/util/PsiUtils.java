@@ -75,21 +75,6 @@ public class PsiUtils {
         return methodList;
     }
 
-    public static boolean isRequest(PsiMember psiMember) {
-        for (PsiAnnotation annotation : psiMember.getAnnotations()) {
-            if (annotation.getQualifiedName().startsWith("org.springframework.web.bind.annotation")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean isController(PsiClass psiClass) {
-        String[] qualifiedNames = new String[]{"org.springframework.stereotype.Controller",
-                "org.springframework.web.bind.annotation.RestController"};
-        return hasAnnotation(psiClass, qualifiedNames);
-    }
-
     public static boolean hasAnnotation(PsiClass psiClass, String[] qualifiedNames) {
         while (psiClass != null) {
             for (PsiAnnotation annotation : psiClass.getAnnotations()) {
