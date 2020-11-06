@@ -43,7 +43,7 @@ public class HttpParamCreateAction extends PsiElementBaseIntentionAction {
             method.getReturnTypeElement().replace(returnType);
         }
 
-        if(MvcUtil.isController(sourceClass)){
+        if(MvcUtil.isController(sourceClass) && !MvcUtil.isRequest(method)){
             String annotationByName = MvcUtil.getAnnotationByName(method.getName());
             PsiUtils.addAnnotation(method,annotationByName);
         }

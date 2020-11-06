@@ -115,7 +115,7 @@ public class ServiceInjectAction extends PsiElementBaseIntentionAction {
     @Override
     @SuppressWarnings("all")
     public @IntentionName String getText() {
-        return "委托方法至";
+        return "委托方法";
     }
 
 }
