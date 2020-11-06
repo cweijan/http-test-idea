@@ -75,14 +75,14 @@ public class PsiUtils {
         return methodList;
     }
 
-    public static void addAnnotation(PsiMember member,String annotationName){
+    public static void addAnnotation(PsiMember member, String annotationName) {
         member.getModifierList().addAnnotation(annotationName);
         JavaCodeStyleManager.getInstance(member.getProject()).shortenClassReferences(member);
     }
 
-    public static PsiMethod findMethod(PsiClass psiClass, PsiMethod method){
+    public static PsiMethod findMethod(PsiClass psiClass, PsiMethod method) {
         for (PsiMethod psiClassMethod : psiClass.getMethods()) {
-            if(compareMethod(psiClassMethod,method)){
+            if (compareMethod(psiClassMethod, method)) {
                 return psiClassMethod;
             }
         }
@@ -97,6 +97,10 @@ public class PsiUtils {
     }
 
     public static boolean hasAnnotation(PsiClass psiClass, String[] qualifiedNames) {
+        return hasAnnotation(psiClass, qualifiedNames, true);
+    }
+
+    public static boolean hasAnnotation(PsiClass psiClass, String[] qualifiedNames, boolean withSuper) {
         while (psiClass != null) {
             for (PsiAnnotation annotation : psiClass.getAnnotations()) {
                 for (String qualifiedName : qualifiedNames) {
@@ -105,7 +109,7 @@ public class PsiUtils {
                     }
                 }
             }
-            psiClass = psiClass.getSuperClass();
+            psiClass = withSuper ? psiClass.getSuperClass() : null;
         }
         return false;
     }

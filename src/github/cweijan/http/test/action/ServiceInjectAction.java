@@ -101,6 +101,10 @@ public class ServiceInjectAction extends PsiElementBaseIntentionAction {
 
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
+        PsiElement parent = element.getParent();
+        if(parent instanceof PsiClass){
+            return false;
+        }
         PsiClass sourceClass = PsiUtils.getContainingClass(element);
         return MvcUtil.isSimpleClass(sourceClass) && !MvcUtil.isController(sourceClass);
     }

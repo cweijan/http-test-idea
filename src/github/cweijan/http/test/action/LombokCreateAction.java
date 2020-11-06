@@ -63,13 +63,13 @@ public class LombokCreateAction extends PsiElementBaseIntentionAction {
         }
 
         // 如果有指定注解, 跳过
-        boolean hasAnnotation = PsiUtils.hasAnnotation((PsiClass) psiClass,
+        boolean hasAnnotation = PsiUtils.hasAnnotation(psiClass,
                 new String[]{
                         "org.springframework.stereotype.Controller",
                         "org.springframework.web.bind.annotation.RestController",
                         "lombok.Data",
                         "org.springframework.stereotype.Service"
-                });
+                },false);
         if (hasAnnotation) {
             return false;
         }
