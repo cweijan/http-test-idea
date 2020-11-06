@@ -25,6 +25,7 @@ import com.intellij.openapi.roots.DependencyScope;
 import com.intellij.openapi.roots.JavaProjectModelModificationService;
 import com.intellij.openapi.util.Computable;
 import com.intellij.psi.*;
+import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.impl.source.PostprocessReformattingAspect;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -36,9 +37,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Author bruce.ge
- * @Date 2017/1/30
- * @Description
+ * @author cweijan
+ * @version 2020/11/6
  */
 public class PsiUtils {
     public static boolean isNotSystemClass(PsiClass psiClass) {
@@ -73,6 +73,27 @@ public class PsiUtils {
             psiClass = psiClass.getSuperClass();
         }
         return methodList;
+    }
+
+    public static void addAnnotation(PsiMember member,String annotationName){
+        member.getModifierList().addAnnotation(annotationName);
+        JavaCodeStyleManager.getInstance(member.getProject()).shortenClassReferences(member);
+    }
+
+    public static PsiMethod findMethod(PsiClass psiClass, PsiMethod method){
+        for (PsiMethod psiClassMethod : psiClass.getMethods()) {
+            if(compareMethod(psiClassMethod,method)){
+                return psiClassMethod;
+            }
+        }
+        return null;
+    }
+
+    public static boolean compareMethod(PsiMethod method1, PsiMethod method2) {
+        return method1.getName().equals(method2.getName()) &&
+                ArrayUtil.compare(method1.getParameterList().getParameters(), method2.getParameterList().getParameters(), (psiParameter, psiParameter2) ->
+                        psiParameter.getType().getCanonicalText().equals(psiParameter2.getType().getCanonicalText())
+                );
     }
 
     public static boolean hasAnnotation(PsiClass psiClass, String[] qualifiedNames) {

@@ -1,3 +1,3 @@
-public :return :name(:Param :param){
-    return :field.:name(:param);
+public :return :name(:Param){
+    :hasReturn :field.:name(:param);
 }

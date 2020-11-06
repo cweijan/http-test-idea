@@ -6,7 +6,6 @@ import com.intellij.codeInspection.util.IntentionName;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
-import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.util.PsiUtil;
 import com.intellij.util.IncorrectOperationException;
@@ -46,8 +45,7 @@ public class HttpParamCreateAction extends PsiElementBaseIntentionAction {
 
         if(MvcUtil.isController(sourceClass)){
             String annotationByName = MvcUtil.getAnnotationByName(method.getName());
-            method.getModifierList().addAnnotation(annotationByName);
-            JavaCodeStyleManager.getInstance(project).shortenClassReferences(method);
+            PsiUtils.addAnnotation(method,annotationByName);
         }
 
         PsiUtil.setModifierProperty(method, PsiModifier.PUBLIC, true);

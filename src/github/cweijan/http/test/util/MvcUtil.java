@@ -17,11 +17,11 @@ public abstract class MvcUtil {
         String request = "PostMapping";
         String suffix = String.format("(\"/%s\")", name);
 
-        if (name.matches("^(list|get|query|select|find)")) {
+        if (name.matches("^(list|get|query|select|find|count|statistic).+")) {
             request = "GetMapping";
-        } else if (name.matches("^(update|change)")) {
+        } else if (name.matches("^(update|change|put).+")) {
             request = "PutMapping";
-        } else if (name.matches("^(delete|remove)")) {
+        } else if (name.matches("^(delete|remove).+")) {
             request = "DeleteMapping";
         }
         return prefix + request + suffix;
@@ -31,7 +31,7 @@ public abstract class MvcUtil {
      * 判断方法是否是mvc的请求方法
      */
     public static boolean isRequest(PsiMember psiMember) {
-        return ListUtil.findOne(psiMember.getAnnotations(), psiAnnotation ->
+        return ArrayUtil.findOne(psiMember.getAnnotations(), psiAnnotation ->
                 psiAnnotation.getQualifiedName().startsWith("org.springframework.web.bind.annotation")
         ) != null;
     }

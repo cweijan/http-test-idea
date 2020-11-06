@@ -5,7 +5,7 @@ import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiMethod;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
-import github.cweijan.http.test.util.ListUtil;
+import github.cweijan.http.test.util.ArrayUtil;
 
 /**
  * @author cweijan
@@ -15,7 +15,7 @@ public class MethodCreator {
 
     public static void createMethod(Project project, PsiClass sourceClass, PsiClass testClass, PsiMethod method) {
 
-        PsiMethod existsMethod = ListUtil.findOne(testClass.getMethods(), (existsTestMethod) ->
+        PsiMethod existsMethod = ArrayUtil.findOne(testClass.getMethods(), (existsTestMethod) ->
                 method.getName().equals(existsTestMethod.getName())
         );
 
