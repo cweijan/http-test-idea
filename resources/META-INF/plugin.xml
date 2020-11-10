@@ -6,9 +6,13 @@
 
   <description><![CDATA[
     This plugin create many context action to enhance development experience:
+<br/>
     1. Make all field to private.
+<br/>
     2. Bind all lombok annotation to class.
+<br/>
     3. Create http test to context action.
+<br/>
     You can find them on class element then press alt+enter.
 ]]></description>
 
@@ -23,16 +27,19 @@
       <className>github.cweijan.http.test.action.HttpTestForMethodAction</className>
     </intentionAction>
     <intentionAction>
-      <className>github.cweijan.http.test.action.HttpParamCreateAction</className>
+      <className>github.cweijan.http.test.action.SpringTestForMethodAction</className>
+    </intentionAction>
+    <intentionAction>
+      <className>github.cweijan.http.test.action.helper.HttpParamCreateAction</className>
     </intentionAction>
     <intentionAction>
       <className>github.cweijan.http.test.action.HttpTestForClassAction</className>
     </intentionAction>
       <intentionAction>
-          <className>github.cweijan.http.test.action.LombokCreateAction</className>
+          <className>github.cweijan.http.test.action.helper.LombokCreateAction</className>
       </intentionAction>
     <intentionAction>
-      <className>github.cweijan.http.test.action.FieldToPrivateAction</className>
+      <className>github.cweijan.http.test.action.helper.FieldToPrivateAction</className>
     </intentionAction>
     <intentionAction>
       <className>github.cweijan.http.test.action.ServiceInjectAction</className>

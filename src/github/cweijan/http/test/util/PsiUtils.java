@@ -22,6 +22,7 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.DependencyScope;
+import com.intellij.openapi.roots.ExternalLibraryDescriptor;
 import com.intellij.openapi.roots.JavaProjectModelModificationService;
 import com.intellij.openapi.util.Computable;
 import com.intellij.psi.*;
@@ -34,6 +35,7 @@ import github.cweijan.http.test.config.Constant;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -152,14 +154,25 @@ public class PsiUtils {
         }, CodeInsightBundle.message("intention.create.test", new Object[0]), PsiUtils.class);
     }
 
-    public static void checkAndAddModule(@NotNull Project project, PsiClass sourceClass) {
+    public static void checkAndAddModule(@NotNull Project project, PsiClass sourceClass, ExternalLibraryDescriptor... dependencies) {
+        List<ExternalLibraryDescriptor> descriptorList = new ArrayList<>();
+        descriptorList.add(Constant.TESTNG_DESCRIPTOR);
+        Collections.addAll(descriptorList, dependencies);
+
         final Module srcModule = ModuleUtilCore.findModuleForPsiElement(sourceClass);
         Module testModule = CreateTestAction.suggestModuleForTests(project, srcModule);
         GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(testModule);
-        PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(Constant.DEPENDENCY_ANNOTATION, scope);
-        if (psiClass == null) {
-            JavaProjectModelModificationService.getInstance(project)
-                    .addDependency(testModule, Constant.TESTNG_DESCRIPTOR, DependencyScope.TEST);
+        for (ExternalLibraryDescriptor dependency : descriptorList) {
+            String name = Constant.DEPENDENCY_ANNOTATION;
+            if (dependency.getLibraryArtifactId().equals("spring-boot-starter-test")) {
+                name = Constant.SPRING_DEPENDENCY_ANNOTATION;
+            }
+            PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(name, scope);
+            if (psiClass == null) {
+                JavaProjectModelModificationService.getInstance(project).addDependency(testModule, dependency, DependencyScope.TEST);
+            }
         }
+
+
     }
 }

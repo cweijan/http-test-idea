@@ -1,4 +1,4 @@
-package github.cweijan.http.test.action;
+package github.cweijan.http.test.action.helper;
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 import com.intellij.codeInspection.util.IntentionFamilyName;

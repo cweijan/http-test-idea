@@ -32,7 +32,8 @@ import static java.lang.String.format;
  */
 public class Generator {
 
-    public static final String ANNOTATION_NAME = "io.github.cweijan.mock.jupiter.HttpTest(host = \"127.0.0.1\")";
+    public static final String HTTP_TEST_ANNOTATION_NAME = "io.github.cweijan.mock.jupiter.HttpTest(host = \"127.0.0.1\")";
+    public static final String SPRING_TEST_ANNOTATION_NAME = "org.springframework.boot.test.context.SpringBootTest(webEnvironment = org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE)";
 
     public static PsiClass getOrCreateTestClass(GenerateContext generateContext) {
 
@@ -65,7 +66,11 @@ public class Generator {
                 createBeforeMethod(generateContext);
             }
 
-            checkAndAddAnnotation(project, testClass);
+            if (generateContext.isSpring) {
+                checkAndAddAnnotation(project, testClass, SPRING_TEST_ANNOTATION_NAME);
+            } else {
+                checkAndAddAnnotation(project, testClass, HTTP_TEST_ANNOTATION_NAME);
+            }
 
             return testClass;
         });
@@ -81,7 +86,7 @@ public class Generator {
         JavaCodeStyleManager.getInstance(generateContext.project).shortenClassReferences(generateContext.testClass);
     }
 
-    private static void checkAndAddAnnotation(Project project, PsiClass testClass) {
+    private static void checkAndAddAnnotation(Project project, PsiClass testClass, @NotNull String annotationName) {
         PsiClass superClass = testClass.getSuperClass();
         List<PsiAnnotation> allAnnotations = Arrays.asList(testClass.getAnnotations());
         while (superClass != null) {
@@ -90,13 +95,13 @@ public class Generator {
         }
 
         for (PsiAnnotation annotation : allAnnotations) {
-            if (annotation.getQualifiedName().equals(ANNOTATION_NAME)) {
+            if (annotation.getQualifiedName().equals(annotationName)) {
                 return;
             }
         }
 
         PsiModifierList classModifierList = testClass.getModifierList();
-        PsiAnnotation addAnnotation = classModifierList.addAnnotation(ANNOTATION_NAME);
+        PsiAnnotation addAnnotation = classModifierList.addAnnotation(annotationName);
         JavaCodeStyleManager.getInstance(project).shortenClassReferences(addAnnotation);
 
     }

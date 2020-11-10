@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiModifier;
 import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
@@ -24,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
  * @author cweijan
  * @since 2020/10/26 23:59
  */
-public class HttpTestForMethodAction extends PsiElementBaseIntentionAction {
+public class SpringTestForMethodAction extends PsiElementBaseIntentionAction {
 
     @Override
     public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
@@ -37,8 +38,9 @@ public class HttpTestForMethodAction extends PsiElementBaseIntentionAction {
         generateContext.project = project;
         generateContext.sourceClass = PsiUtils.getContainingClass(element);
 
-        PsiUtils.checkAndAddModule(project, sourceClass);
+        PsiUtils.checkAndAddModule(project, sourceClass, Constant.SPRING_TESTNG_DESCRIPTOR);
 
+        generateContext.isSpring = true;
         PsiClass testClass = Generator.getOrCreateTestClass(generateContext);
         CodeInsightUtil.positionCursorAtLBrace(project, testClass.getContainingFile(), testClass);
 
@@ -57,7 +59,7 @@ public class HttpTestForMethodAction extends PsiElementBaseIntentionAction {
         if (method == null || psiClass == null) {
             return false;
         }
-        return MvcUtil.isController(psiClass) && MvcUtil.isRequest(method);
+        return MvcUtil.isService(psiClass) && method.getModifierList().hasModifierProperty(PsiModifier.PUBLIC);
     }
 
     @NotNull
@@ -70,6 +72,6 @@ public class HttpTestForMethodAction extends PsiElementBaseIntentionAction {
     @Override
     @SuppressWarnings("all")
     public @IntentionName String getText() {
-        return Constant.TEST_TEXT;
+        return Constant.SPRING_TEST_TEXT;
     }
 }

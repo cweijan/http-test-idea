@@ -3,3 +3,4 @@ build/
 target/
 .idea/
 *.jar
+/resources/resources.iml

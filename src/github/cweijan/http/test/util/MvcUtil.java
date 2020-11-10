@@ -9,6 +9,11 @@ import com.intellij.psi.PsiMember;
  */
 public abstract class MvcUtil {
 
+    private static final String[] SERVICE_QUALIFIED_NAMES = new String[]{"org.springframework.stereotype.Service",
+            "org.springframework.stereotype.Component"};
+    public static final String[] CONTROLLER_QUALIFIED_NAMES = new String[]{"org.springframework.stereotype.Controller",
+            "org.springframework.web.bind.annotation.RestController"};
+
     /**
      * 根据名称返回mvc相应的注解全限定名
      */
@@ -40,16 +45,21 @@ public abstract class MvcUtil {
      * 判断类是否为mvc的controller类
      */
     public static boolean isController(PsiClass psiClass) {
-        String[] qualifiedNames = new String[]{"org.springframework.stereotype.Controller",
-                "org.springframework.web.bind.annotation.RestController"};
-        return PsiUtils.hasAnnotation(psiClass, qualifiedNames);
+        return isSimpleClass(psiClass) && PsiUtils.hasAnnotation(psiClass, CONTROLLER_QUALIFIED_NAMES);
+    }
+
+    /**
+     * 判断类是否为mvc的service类
+     */
+    public static boolean isService(PsiClass psiClass) {
+        return isSimpleClass(psiClass) &&  PsiUtils.hasAnnotation(psiClass, SERVICE_QUALIFIED_NAMES);
     }
 
     /**
      * 判断类是否为可操作的类
      */
     public static boolean isSimpleClass(PsiClass psiClass){
-        return !psiClass.isInterface() && !psiClass.isEnum() && !psiClass.isAnnotationType() && !psiClass.isRecord();
+        return psiClass!=null && !psiClass.isInterface() && !psiClass.isEnum() && !psiClass.isAnnotationType() && !psiClass.isRecord();
     }
 
 }

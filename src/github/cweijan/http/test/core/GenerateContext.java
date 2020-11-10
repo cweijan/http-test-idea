@@ -17,6 +17,8 @@ public class GenerateContext {
 
     public boolean createBefore;
 
+    public boolean isSpring;
+
     public PsiDirectory targetDirector;
 
     public String superClassName;
