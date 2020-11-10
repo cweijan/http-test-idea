@@ -33,7 +33,7 @@ import static java.lang.String.format;
 public class Generator {
 
     public static final String HTTP_TEST_ANNOTATION_NAME = "io.github.cweijan.mock.jupiter.HttpTest(host = \"127.0.0.1\")";
-    public static final String SPRING_TEST_ANNOTATION_NAME = "org.springframework.boot.test.context.SpringBootTest(webEnvironment = org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE)";
+    public static final String SPRING_TEST_ANNOTATION_NAME = "org.springframework.boot.test.context.SpringBootTest";
 
     public static PsiClass getOrCreateTestClass(GenerateContext generateContext) {
 
