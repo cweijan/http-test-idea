@@ -11,6 +11,7 @@ public class Constant {
      * 上下文菜单字体
      */
     public static final String FONT_FAMILY = "Microsoft yaHei";
+    public static final String VERSION = "0.0.9";
     /**
      * 上下文菜单文字
      */
@@ -28,6 +29,6 @@ public class Constant {
      * 依赖
      */
     public static final ExternalLibraryDescriptor TESTNG_DESCRIPTOR =
-            new ExternalLibraryDescriptor("io.github.cweijan", "http-test", "0.0.8", "0.0.8", "0.0.8");
+            new ExternalLibraryDescriptor("io.github.cweijan", "http-test", VERSION, VERSION, VERSION);
 
 }

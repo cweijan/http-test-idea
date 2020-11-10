@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>github.cweijan.plugin.http.test</id>
   <name>Http Test Support</name>
-  <version>1.0</version>
+  <version>1.2</version>
   <vendor email="cweijan@163.com" url="">cweijan</vendor>
 
   <description><![CDATA[
@@ -9,6 +9,7 @@
     1. Make all field to private.
     2. Bind all lombok annotation to class.
     3. Create http test to context action.
+    You can find them on class element then press alt+enter.
 ]]></description>
 
   <idea-version since-build="183"/>
