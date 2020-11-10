@@ -35,7 +35,7 @@ public class FieldCode {
                 this.newStatement = format("%s %s=new ArrayList<>();", psiType.getCanonicalText(), name);
             }
         } else if (qualifiedName.startsWith("java.lang")) {
-            this.newStatement = format("%s %s=request(%s.class);", className, name, className);
+            this.newStatement = format("%s %s=mock(%s.class);", className, name, className);
         } else {
             this.newStatement = format("%s %s=new %s();", className, name, className);
         }
