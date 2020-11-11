@@ -58,6 +58,10 @@ public class ServiceInjectAction extends PsiElementBaseIntentionAction {
         for (PsiReference psiReference : all) {
 
             PsiClass referClass = PsiUtils.getContainingClass((PsiElement) psiReference);
+            if(!MvcUtil.isController(referClass)){
+               continue;
+            }
+
             String fieldName = ((PsiFieldImpl) ((PsiJavaCodeReferenceElementImpl) psiReference).getParent().getParent()).getName();
 
             String template = TestTemplate.getInstance().loadControllerMethodTemplate()
