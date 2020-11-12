@@ -12,6 +12,7 @@ import com.intellij.psi.PsiModifier;
 import com.intellij.psi.util.PsiUtil;
 import com.intellij.util.IncorrectOperationException;
 import github.cweijan.http.test.config.Constant;
+import github.cweijan.http.test.util.MvcUtil;
 import github.cweijan.http.test.util.PsiUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,7 +49,7 @@ public class FieldToPrivateAction extends PsiElementBaseIntentionAction {
         }
         PsiClass psiClass = (PsiClass) parentElement;
 
-        if (psiClass.isInterface() || psiClass.isRecord() || psiClass.isEnum() || psiClass.isAnnotationType()) {
+        if(!MvcUtil.isSimpleClass(psiClass)){
             return false;
         }
 

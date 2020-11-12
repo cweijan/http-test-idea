@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * @author cweijan
@@ -43,17 +44,16 @@ public class ServiceInjectAction extends PsiElementBaseIntentionAction {
 
         PsiClass sourceClass = PsiUtils.getContainingClass(element);
 
-        Collection<PsiReference> all = ReferencesSearch.search(sourceClass).filtering(psiReference ->
-                (psiReference instanceof PsiElement) && (((PsiElement) psiReference).getParent().getParent() instanceof PsiField)
-        ).findAll();
+        Collection<PsiReference> all = ReferencesSearch.search(sourceClass).findAll();
 
         for (PsiClass parentInterface : sourceClass.getInterfaces()) {
             if (StringUtils.difference(((PsiJavaFileImpl) sourceClass.getContainingFile()).getPackageName(), ((PsiJavaFileImpl) parentInterface.getContainingFile()).getPackageName()).length() < 10) {
-                all.addAll(ReferencesSearch.search(parentInterface).filtering(psiReference ->
-                        (psiReference instanceof PsiElement) && (((PsiElement) psiReference).getParent().getParent() instanceof PsiField)
-                ).findAll());
+                all.addAll(ReferencesSearch.search(parentInterface).findAll());
             }
         }
+        all=all.stream().filter(psiReference ->
+                (psiReference instanceof PsiElement) && (((PsiElement) psiReference).getParent().getParent() instanceof PsiField)
+        ).collect(Collectors.toList());
 
         for (PsiReference psiReference : all) {
 

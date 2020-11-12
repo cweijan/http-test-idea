@@ -59,7 +59,7 @@ public abstract class MvcUtil {
      * 判断类是否为可操作的类
      */
     public static boolean isSimpleClass(PsiClass psiClass){
-        return psiClass!=null && !psiClass.isInterface() && !psiClass.isEnum() && !psiClass.isAnnotationType() && !psiClass.isRecord();
+        return psiClass!=null && !psiClass.isInterface() && !psiClass.isEnum() && !psiClass.isAnnotationType();
     }
 
 }

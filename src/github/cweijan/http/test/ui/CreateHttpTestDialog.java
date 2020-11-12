@@ -7,7 +7,6 @@ import com.intellij.icons.AllIcons;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.ide.util.TreeClassChooser;
 import com.intellij.ide.util.TreeClassChooserFactory;
-import com.intellij.java.JavaBundle;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CustomShortcutSet;
@@ -17,16 +16,13 @@ import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.DependencyScope;
 import com.intellij.openapi.roots.JavaProjectModelModificationService;
 import com.intellij.openapi.roots.JavaProjectRootsUtil;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.util.Comparing;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VfsUtilCore;
@@ -45,20 +41,19 @@ import com.intellij.testIntegration.JavaTestFramework;
 import com.intellij.testIntegration.TestFramework;
 import com.intellij.testIntegration.TestIntegrationUtils;
 import com.intellij.testIntegration.createTest.CreateTestAction;
-import com.intellij.ui.*;
+import com.intellij.ui.EditorTextField;
+import com.intellij.ui.RecentsManager;
+import com.intellij.ui.ReferenceEditorComboWithBrowseButton;
+import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.util.IncorrectOperationException;
-import com.intellij.util.ObjectUtils;
-import com.intellij.util.SmartList;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.util.ui.JBUI;
 import github.cweijan.http.test.config.Constant;
-import github.cweijan.http.test.config.HttpBundle;
 import github.cweijan.http.test.core.GenerateContext;
 import github.cweijan.http.test.util.MvcUtil;
 import github.cweijan.http.test.util.ReflectUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 import javax.swing.*;
@@ -89,15 +84,14 @@ public class CreateHttpTestDialog extends DialogWrapper {
     protected PsiDirectory myTargetDirectory;
     private TestFramework mySelectedFramework;
 
-    private final ComboBox<TestFramework> myLibrariesCombo = new ComboBox<>(new DefaultComboBoxModel<>());
     private EditorTextField myTargetClassNameField;
     private ReferenceEditorComboWithBrowseButton mySuperClassField;
     private ReferenceEditorComboWithBrowseButton myTargetPackageField;
-    private final JCheckBox myGenerateBeforeBox = new JCheckBox(HttpBundle.message("intention.generate.before"),false);
-    private final JCheckBox myGenerateAfterBox = new JCheckBox(JavaBundle.message("intention.create.test.dialog.tearDown"));
-    private final JCheckBox myShowInheritedMethodsBox = new JCheckBox(JavaBundle.message("intention.create.test.dialog.show.inherited"));
+    private final JCheckBox myGenerateBeforeBox = new JCheckBox("beforeRequest",false);
+    private final JCheckBox myGenerateAfterBox = new JCheckBox("tear&Down/@After");
+    private final JCheckBox myShowInheritedMethodsBox = new JCheckBox("Show &inherited methods");
     private final MemberSelectionTable myMethodsTable = new MemberSelectionTable(Collections.emptyList(), null);
-    private final JButton myFixLibraryButton = new JButton(JavaBundle.message("intention.create.test.dialog.fix.library"));
+    private final JButton myFixLibraryButton = new JButton("Fix");
     private JPanel myFixLibraryPanel;
     private JLabel myFixLibraryLabel;
 
@@ -160,7 +154,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
             myFixLibraryPanel.setVisible(false);
         } else {
             myFixLibraryPanel.setVisible(true);
-            String text = JavaBundle.message("intention.create.test.dialog.library.not.found", descriptor.getName());
+            String text = descriptor.getName()+" library not found in the module";
             myFixLibraryLabel.setText(text);
             myFixLibraryButton.setVisible(descriptor instanceof JavaTestFramework && ((JavaTestFramework) descriptor).getFrameworkLibraryDescriptor() != null
                     || descriptor.getLibraryPath() != null);
@@ -199,11 +193,6 @@ public class CreateHttpTestDialog extends DialogWrapper {
 
     private String getLastSelectedSuperClassName(TestFramework framework) {
         return getProperties().getValue(getDefaultSuperClassPropertyName(framework));
-    }
-
-    private void saveDefaultLibraryNameAndSuperClass() {
-        getProperties().setValue(DEFAULT_LIBRARY_NAME_PROPERTY, mySelectedFramework.getName());
-        getProperties().setValue(getDefaultSuperClassPropertyName(mySelectedFramework), mySuperClassField.getText());
     }
 
     private static String getDefaultSuperClassPropertyName(TestFramework framework) {
@@ -252,21 +241,13 @@ public class CreateHttpTestDialog extends DialogWrapper {
         constr.gridy = gridy++;
         constr.gridx = 0;
         constr.weightx = 0;
-//        final JLabel libLabel = new JLabel(JavaBundle.message("intention.create.test.dialog.testing.library"));
-//        libLabel.setLabelFor(myLibrariesCombo);
-//        panel.add(libLabel, constr);
-//
-//        constr.gridx = 1;
-//        constr.weightx = 1;
-//        constr.gridwidth = GridBagConstraints.REMAINDER;
-//        panel.add(myLibrariesCombo, constr);
 
         myFixLibraryPanel = new JPanel(new BorderLayout());
         myFixLibraryLabel = new JLabel();
         myFixLibraryLabel.setIcon(AllIcons.Actions.IntentionBulb);
         myFixLibraryPanel.add(myFixLibraryLabel, BorderLayout.CENTER);
         myFixLibraryPanel.add(myFixLibraryButton, BorderLayout.EAST);
-        String text = HttpBundle.message("intention.generate.fix.notice");
+        String text = "HTTPTest library not found in the module";
         myFixLibraryLabel.setText(text);
         GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(testModule);
         PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(Constant.DEPENDENCY_ANNOTATION, scope);
@@ -285,7 +266,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
         constr.gridx = 0;
         constr.weightx = 0;
         constr.gridwidth = 1;
-        panel.add(new JLabel(JavaBundle.message("intention.create.test.dialog.class.name")), constr);
+        panel.add(new JLabel("Class name:"), constr);
 
         myTargetClassNameField = new EditorTextField(suggestTestClassName(myTargetClass));
         myTargetClassNameField.getDocument().addDocumentListener(new DocumentListener() {
@@ -303,7 +284,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
         constr.gridy = gridy++;
         constr.gridx = 0;
         constr.weightx = 0;
-        panel.add(new JLabel(JavaBundle.message("intention.create.test.dialog.super.class")), constr);
+        panel.add(new JLabel("Superclass:"), constr);
 
         mySuperClassField = new ReferenceEditorComboWithBrowseButton(new MyChooseSuperClassAction(), null, project, true,
                 JavaCodeFragment.VisibilityChecker.EVERYTHING_VISIBLE, RECENT_SUPERS_KEY);
@@ -316,14 +297,14 @@ public class CreateHttpTestDialog extends DialogWrapper {
         constr.gridy = gridy++;
         constr.gridx = 0;
         constr.weightx = 0;
-        panel.add(new JLabel(JavaBundle.message("dialog.create.class.destination.package.label")), constr);
+        panel.add(new JLabel("Destination package:"), constr);
 
         constr.gridx = 1;
         constr.weightx = 1;
 
 
         String targetPackageName = myTargetPackage != null ? myTargetPackage.getQualifiedName() : "";
-        myTargetPackageField = new PackageNameReferenceEditorCombo(targetPackageName, project, RECENTS_KEY, JavaBundle.message("dialog.create.class.package.chooser.title"));
+        myTargetPackageField = new PackageNameReferenceEditorCombo(targetPackageName, project, RECENTS_KEY, "Choose Destination Package");
 
         new AnAction() {
             @Override
@@ -340,7 +321,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
         constr.gridy = gridy++;
         constr.gridx = 0;
         constr.weightx = 0;
-        panel.add(new JLabel(JavaBundle.message("intention.create.test.dialog.generate")), constr);
+        panel.add(new JLabel("Generate:"), constr);
 
         constr.gridx = 1;
         constr.weightx = 1;
@@ -354,7 +335,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
         constr.gridy = gridy++;
         constr.gridx = 0;
         constr.weightx = 0;
-        final JLabel membersLabel = new JLabel(JavaBundle.message("intention.create.test.dialog.select.methods"));
+        final JLabel membersLabel = new JLabel("Generate test &methods for:");
         membersLabel.setLabelFor(myMethodsTable);
 //        panel.add(membersLabel, constr);
 
@@ -369,59 +350,6 @@ public class CreateHttpTestDialog extends DialogWrapper {
         constr.fill = GridBagConstraints.BOTH;
         constr.weighty = 1;
         panel.add(ScrollPaneFactory.createScrollPane(myMethodsTable), constr);
-
-        myLibrariesCombo.setRenderer(SimpleListCellRenderer.create((label, value, index) -> {
-            if (value != null) {
-                label.setText(value.getName());
-                label.setIcon(value.getIcon());
-            }
-        }));
-        final boolean hasTestRoots = !ModuleRootManager.getInstance(testModule).getSourceRoots(JavaModuleSourceRootTypes.TESTS).isEmpty();
-        final List<TestFramework> attachedLibraries = new ArrayList<>();
-        final String defaultLibrary = getDefaultLibraryName();
-        TestFramework defaultDescriptor = null;
-
-        final DefaultComboBoxModel<TestFramework> model = (DefaultComboBoxModel<TestFramework>) myLibrariesCombo.getModel();
-
-        final List<TestFramework> descriptors = new SmartList<>(TestFramework.EXTENSION_NAME.getExtensionList());
-        descriptors.sort((d1, d2) -> Comparing.compare(d1.getName(), d2.getName()));
-
-        for (final TestFramework descriptor : descriptors) {
-            model.addElement(descriptor);
-            if (hasTestRoots && descriptor.isLibraryAttached(testModule)) {
-                attachedLibraries.add(descriptor);
-            }
-
-            if (Comparing.equal(defaultLibrary, descriptor.getName())) {
-                defaultDescriptor = descriptor;
-            }
-        }
-
-        myLibrariesCombo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                final Object selectedItem = myLibrariesCombo.getSelectedItem();
-                if (selectedItem != null) {
-                    final DumbService dumbService = DumbService.getInstance(project);
-                    dumbService.setAlternativeResolveEnabled(true);
-                    try {
-                        onLibrarySelected((TestFramework) selectedItem);
-                    } finally {
-                        dumbService.setAlternativeResolveEnabled(false);
-                    }
-                }
-            }
-        });
-
-        if (defaultDescriptor != null && (attachedLibraries.contains(defaultDescriptor) || attachedLibraries.isEmpty())) {
-            myLibrariesCombo.setSelectedItem(defaultDescriptor);
-        } else if (!descriptors.isEmpty()) {
-            List<TestFramework> applicableFrameworks = attachedLibraries.isEmpty() ? descriptors : attachedLibraries;
-            TestFramework preferredFramework =
-                    ObjectUtils.notNull(ContainerUtil.find(applicableFrameworks, d -> d.getLanguage().equals(myTargetClass.getLanguage())),
-                            applicableFrameworks.get(0));
-            myLibrariesCombo.setSelectedItem(preferredFramework);
-        }
 
         myFixLibraryButton.addActionListener(e -> {
             JavaProjectModelModificationService.getInstance(project)
@@ -507,13 +435,12 @@ public class CreateHttpTestDialog extends DialogWrapper {
 
         if (errorMessage != null) {
             final int result = Messages
-                    .showOkCancelDialog(project, JavaBundle.message("dialog.message.0.update.existing.class", errorMessage), CommonBundle.getErrorTitle(), Messages.getErrorIcon());
+                    .showOkCancelDialog(errorMessage+". Update existing class?", CommonBundle.getErrorTitle(),"OK","Cancel", Messages.getErrorIcon());
             if (result == Messages.CANCEL) {
                 return;
             }
         }
 
-        saveDefaultLibraryNameAndSuperClass();
         saveShowInheritedMembersStatus();
         super.doOKAction();
     }
@@ -607,7 +534,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
         public void actionPerformed(ActionEvent e) {
             TreeClassChooserFactory f = TreeClassChooserFactory.getInstance(project);
             TreeClassChooser dialog =
-                    f.createAllProjectScopeChooser(JavaBundle.message("intention.create.test.dialog.choose.super.class"));
+                    f.createAllProjectScopeChooser("Choose Superclass");
             dialog.showDialog();
             PsiClass aClass = dialog.getSelected();
             if (aClass != null) {

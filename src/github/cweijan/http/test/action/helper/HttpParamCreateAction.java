@@ -33,7 +33,7 @@ public class HttpParamCreateAction extends PsiElementBaseIntentionAction {
         String returnClass = WordUtils.capitalize(method.getName()) + "VO";
         String returnClassFull = currentPackage + ".vo." + returnClass;
 
-        PsiElementFactory elementFactory = PsiElementFactory.getInstance(project);
+        PsiElementFactory elementFactory = JavaPsiFacade.getElementFactory(project);
 
         PsiParameter parameter = elementFactory.createParameterFromText(requestClass + " " + method.getName() + "DTO", method);
         method.getParameterList().add(parameter);

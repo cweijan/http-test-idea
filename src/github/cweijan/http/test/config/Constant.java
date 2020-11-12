@@ -2,9 +2,6 @@ package github.cweijan.http.test.config;
 
 import com.intellij.openapi.roots.ExternalLibraryDescriptor;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * @author cweijan
  * @since 2020/11/01 0:10
@@ -39,5 +36,4 @@ public class Constant {
     public static final ExternalLibraryDescriptor SPRING_TESTNG_DESCRIPTOR =
             new ExternalLibraryDescriptor("org.springframework.boot", "spring-boot-starter-test", SPRING_BOOT_VERSION, SPRING_BOOT_VERSION, SPRING_BOOT_VERSION);
 
-    public static final List<ExternalLibraryDescriptor> DEPENDENCIES = Arrays.asList(TESTNG_DESCRIPTOR,SPRING_TESTNG_DESCRIPTOR);
 }
