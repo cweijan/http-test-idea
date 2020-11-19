@@ -38,7 +38,7 @@ public class ServiceInjectAction extends PsiElementBaseIntentionAction {
         PsiUtil.setModifierProperty(method, PsiModifier.PUBLIC, true);
 
         String param = String.join(",", ArrayUtil.mapArray(method.getParameterList().getParameters(), psiParameter ->
-                psiParameter.getName() + " " + psiParameter.getType().getCanonicalText()
+                psiParameter.getType().getCanonicalText() + " " + psiParameter.getName()
         ));
         String invokeParam = String.join(",", ArrayUtil.mapArray(method.getParameterList().getParameters(), PsiParameter::getName));
 
@@ -51,15 +51,15 @@ public class ServiceInjectAction extends PsiElementBaseIntentionAction {
                 all.addAll(ReferencesSearch.search(parentInterface).findAll());
             }
         }
-        all=all.stream().filter(psiReference ->
+        all = all.stream().filter(psiReference ->
                 (psiReference instanceof PsiElement) && (((PsiElement) psiReference).getParent().getParent() instanceof PsiField)
         ).collect(Collectors.toList());
 
         for (PsiReference psiReference : all) {
 
             PsiClass referClass = PsiUtils.getContainingClass((PsiElement) psiReference);
-            if(!MvcUtil.isController(referClass)){
-               continue;
+            if (!MvcUtil.isController(referClass)) {
+                continue;
             }
 
             String fieldName = ((PsiFieldImpl) ((PsiJavaCodeReferenceElementImpl) psiReference).getParent().getParent()).getName();
@@ -92,9 +92,9 @@ public class ServiceInjectAction extends PsiElementBaseIntentionAction {
             if (oldMethod != null) {
                 oldMethod.replace(newReferMethod);
             } else {
-                if(MvcUtil.isController(referClass)){
+                if (MvcUtil.isController(referClass)) {
                     String annotationByName = MvcUtil.getAnnotationByName(method.getName());
-                    PsiUtils.addAnnotation(newReferMethod,annotationByName);
+                    PsiUtils.addAnnotation(newReferMethod, annotationByName);
                 }
                 referClass.add(newReferMethod);
             }
@@ -106,7 +106,7 @@ public class ServiceInjectAction extends PsiElementBaseIntentionAction {
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
         PsiElement parent = element.getParent();
-        if(parent instanceof PsiClass){
+        if (parent instanceof PsiClass) {
             return false;
         }
         PsiClass sourceClass = PsiUtils.getContainingClass(element);
