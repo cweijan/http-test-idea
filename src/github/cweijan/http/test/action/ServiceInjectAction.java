@@ -89,13 +89,13 @@ public class ServiceInjectAction extends PsiElementBaseIntentionAction {
 
             PsiMethod oldMethod = PsiUtils.findMethod(referClass, newReferMethod);
             JavaCodeStyleManager.getInstance(project).shortenClassReferences(newReferMethod);
+            if (MvcUtil.isController(referClass)) {
+                String annotationByName = MvcUtil.getAnnotationByName(method.getName());
+                PsiUtils.addAnnotation(newReferMethod, annotationByName);
+            }
             if (oldMethod != null) {
                 oldMethod.replace(newReferMethod);
             } else {
-                if (MvcUtil.isController(referClass)) {
-                    String annotationByName = MvcUtil.getAnnotationByName(method.getName());
-                    PsiUtils.addAnnotation(newReferMethod, annotationByName);
-                }
                 referClass.add(newReferMethod);
             }
             CodeInsightUtil.positionCursor(project, referClass.getContainingFile(), newReferMethod);
