@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
-import com.intellij.psi.codeStyle.JavaCodeStyleManager;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.IncorrectOperationException;
 import github.cweijan.http.test.config.Constant;
@@ -40,11 +39,10 @@ public class HttpTestForMethodAction extends PsiElementBaseIntentionAction {
         PsiUtils.checkAndAddModule(project, sourceClass);
 
         PsiClass testClass = Generator.getOrCreateTestClass(generateContext);
-        CodeInsightUtil.positionCursorAtLBrace(project, testClass.getContainingFile(), testClass);
 
         PsiUtils.doWrite(project, () -> {
-            MethodCreator.createMethod(project, sourceClass, testClass, method);
-            JavaCodeStyleManager.getInstance(project).shortenClassReferences(testClass);
+            PsiElement addedMethod = MethodCreator.createMethod(project, sourceClass, testClass, method);
+            CodeInsightUtil.positionCursor(project, testClass.getContainingFile(), addedMethod);
             return testClass;
         });
 
