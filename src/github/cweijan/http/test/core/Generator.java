@@ -82,7 +82,7 @@ public class Generator {
 
     private static void checkAndAddAnnotation(Project project, PsiClass testClass, @NotNull String annotationName) {
         PsiClass superClass = testClass.getSuperClass();
-        List<PsiAnnotation> allAnnotations = new ArrayList<>( Arrays.asList(testClass.getAnnotations()));
+        List<PsiAnnotation> allAnnotations = new ArrayList<>(Arrays.asList(testClass.getAnnotations()));
         while (superClass != null) {
             allAnnotations.addAll(Arrays.asList(superClass.getAnnotations()));
             superClass = superClass.getSuperClass();
@@ -153,7 +153,7 @@ public class Generator {
             PsiType parameterType = setMethod.getParameterList().getParameters()[0].getType();
             importType(psiJavaFile, parameterType);
             stringBuilder.append("    ").append(
-                    format("%s.%s(mock(%s.class))", fieldCode.getName(), setMethod.getName(), getFullName(parameterType))
+                    format("%s.%s(%s)", fieldCode.getName(), setMethod.getName(), buildMock(parameterType))
             ).append(";\n");
         }
         fieldCode.setSetCode(stringBuilder.toString());
@@ -161,14 +161,23 @@ public class Generator {
         return fieldCode;
     }
 
-    private static String getFullName(PsiType type) {
+    private static String buildMock(PsiType type) {
+
+        PsiClass typeClass = PsiTypesUtil.getPsiClass(type);
+        PsiType psiType = PsiUtil.extractIterableTypeParameter(type, false);
+        if (typeClass != null && psiType != null) {
+            String qualifiedName = typeClass.getQualifiedName();
+            if (qualifiedName.equals("java.util.List")) {
+                return "java.util.Arrays.asList(mock(" + ((PsiClassReferenceType) psiType).getClassName() + ".class))";
+            }
+        }
         if (type instanceof PsiClassReferenceType) {
-            return ((PsiClassReferenceType) type).getClassName();
+            return "mock(" + ((PsiClassReferenceType) type).getClassName() + ".class)";
         } else if (type instanceof PsiPrimitiveType) {
-            return ((PsiPrimitiveType) type).getBoxedTypeName();
+            return "mock(" + ((PsiPrimitiveType) type).getBoxedTypeName() + ".class)";
         }
 
-        return type.getCanonicalText();
+        return "mock(" + type.getCanonicalText() + ".class)";
     }
 
     public static PsiMethod generateMethodContent(Project project, PsiJavaFile psiJavaFile, PsiClass sourceClass, PsiClass testClass, PsiMethod method) {
