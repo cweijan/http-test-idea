@@ -88,7 +88,7 @@ public class Generator {
 
     private static void checkAndAddAnnotation(Project project, PsiClass testClass, @NotNull String annotationName) {
         PsiClass superClass = testClass.getSuperClass();
-        List<PsiAnnotation> allAnnotations = Arrays.asList(testClass.getAnnotations());
+        List<PsiAnnotation> allAnnotations = new ArrayList<>( Arrays.asList(testClass.getAnnotations()));
         while (superClass != null) {
             allAnnotations.addAll(Arrays.asList(superClass.getAnnotations()));
             superClass = superClass.getSuperClass();
