@@ -105,8 +105,7 @@ public class ServiceInjectAction extends PsiElementBaseIntentionAction {
 
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
-        PsiElement parent = element.getParent();
-        if (parent instanceof PsiClass) {
+        if(!PsiUtils.inMethodSign(element)){
             return false;
         }
         PsiClass sourceClass = PsiUtils.getContainingClass(element);

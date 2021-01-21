@@ -54,6 +54,9 @@ public class HttpParamCreateAction extends PsiElementBaseIntentionAction {
 
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
+        if(!PsiUtils.inMethodSign(element)){
+            return false;
+        }
         PsiMethod method = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
         if (method == null) {
             return false;

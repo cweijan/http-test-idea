@@ -173,6 +173,13 @@ public class PsiUtils {
             }
         }
 
-
     }
+
+    public static boolean inMethodSign(PsiElement psiElement) {
+        PsiElement parent = psiElement.getParent();
+        return parent instanceof PsiMethod ||
+                parent instanceof PsiParameterList
+                ;
+    }
+
 }

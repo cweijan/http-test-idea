@@ -52,6 +52,9 @@ public class SpringTestForMethodAction extends PsiElementBaseIntentionAction {
 
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
+        if(!PsiUtils.inMethodSign(element)){
+            return false;
+        }
         PsiClass psiClass = PsiUtils.getContainingClass(element);
         PsiMethod method = PsiTreeUtil.getParentOfType(element, PsiMethod.class);
         if (method == null || psiClass == null) {
