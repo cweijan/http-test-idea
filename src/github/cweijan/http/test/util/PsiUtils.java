@@ -182,4 +182,13 @@ public class PsiUtils {
                 ;
     }
 
+    public static PsiElement findIdentify(PsiElement psiElement) {
+        for (PsiElement child : psiElement.getChildren()) {
+            if (child instanceof PsiIdentifier) {
+                return child;
+            }
+        }
+        return psiElement;
+    }
+
 }
