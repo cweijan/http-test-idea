@@ -39,7 +39,7 @@ public class FieldCode {
         } else {
             this.newStatement = format("%s %s=new %s();", className, name, className);
         }
-
+        this.newStatement="\n"+this.newStatement+"\n";
     }
 
     public String getName() {

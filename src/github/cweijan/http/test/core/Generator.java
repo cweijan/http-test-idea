@@ -158,7 +158,7 @@ public class Generator {
                     .append("\n");
             stringBuilder.append("    ")
                     .append(format("%s.%s(%s)", fieldCode.getName(), setMethod.getName(),  psiParameter.getName()))
-                .append(";\n");
+                .append(";\n\n");
         }
         fieldCode.setSetCode(stringBuilder.toString());
 
@@ -210,7 +210,7 @@ public class Generator {
 
         String fullMethod = TestTemplate.getInstance().loadTestMethodTemplate()
                 .replace("${NAME}", methodName)
-                .replace("${BODY}", methodContent);
+                .replace("${BODY}", methodContent.append("\n"));
 
         return JVMElementFactories.getFactory(testClass.getLanguage(), project).createMethodFromText(fullMethod, testClass);
     }
