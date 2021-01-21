@@ -38,9 +38,8 @@ public class HttpTestForMethodAction extends PsiElementBaseIntentionAction {
 
         PsiUtils.checkAndAddModule(project, sourceClass);
 
-        PsiClass testClass = Generator.getOrCreateTestClass(generateContext);
-
         PsiUtils.doWrite(project, () -> {
+            PsiClass testClass = Generator.getOrCreateTestClass(generateContext);
             PsiElement addedMethod = MethodCreator.createMethod(project, sourceClass, testClass, method);
             CodeInsightUtil.positionCursor(project, testClass.getContainingFile(), addedMethod);
             return testClass;

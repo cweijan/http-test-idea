@@ -45,12 +45,12 @@ public class HttpTestForClassAction extends PsiElementBaseIntentionAction {
 
         checkAndAddModule(project, sourceClass);
 
-        SwingUtilities.invokeLater(()-> {
+        SwingUtilities.invokeLater(() -> {
             if (testDialog.showAndGet()) {
                 GenerateContext generateContext = testDialog.getGenerateContext();
-                PsiClass testClass = Generator.getOrCreateTestClass(generateContext);
-                CodeInsightUtil.positionCursorAtLBrace(project, testClass.getContainingFile(), testClass);
                 PsiUtils.doWrite(project, () -> {
+                    PsiClass testClass = Generator.getOrCreateTestClass(generateContext);
+                    CodeInsightUtil.positionCursorAtLBrace(project, testClass.getContainingFile(), testClass);
                     for (MemberInfo memberInfo : generateContext.methods) {
                         MethodCreator.createMethod(project, sourceClass, testClass, (PsiMethod) memberInfo.getMember());
                     }

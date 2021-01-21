@@ -56,27 +56,21 @@ public class Generator {
                 TestTemplate.getInstance().loadTestClassTemplate(), testClassName, properties, psiDirectory);
         generateContext.testClass = testClass;
 
-        PsiUtils.doWrite(project, () -> {
+        if (generateContext.superClassName != null && !generateContext.superClassName.equals("")) {
+            ReflectUtil.invoke(JavaTestGenerator.class, "addSuperClass", testClass, project, generateContext.superClassName);
+        }
 
-            if (generateContext.superClassName != null && !generateContext.superClassName.equals("")) {
-                ReflectUtil.invoke(JavaTestGenerator.class, "addSuperClass", testClass, project, generateContext.superClassName);
-            }
+        if (generateContext.createBefore) {
+            createBeforeMethod(generateContext);
+        }
 
-            if (generateContext.createBefore) {
-                createBeforeMethod(generateContext);
-            }
-
-            if (generateContext.isSpring) {
-                checkAndAddAnnotation(project, testClass, SPRING_TEST_ANNOTATION_NAME);
-            } else {
-                checkAndAddAnnotation(project, testClass, HTTP_TEST_ANNOTATION_NAME);
-            }
-
-            return testClass;
-        });
+        if (generateContext.isSpring) {
+            checkAndAddAnnotation(project, testClass, SPRING_TEST_ANNOTATION_NAME);
+        } else {
+            checkAndAddAnnotation(project, testClass, HTTP_TEST_ANNOTATION_NAME);
+        }
 
         return testClass;
-
     }
 
     private static void createBeforeMethod(GenerateContext generateContext) {
