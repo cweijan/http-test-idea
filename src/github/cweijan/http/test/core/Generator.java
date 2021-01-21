@@ -150,11 +150,15 @@ public class Generator {
         PsiClass parameterClass = PsiTypesUtil.getPsiClass(parameter.getType());
         StringBuilder stringBuilder = new StringBuilder(fieldCode.getNewStatement() + "\n");
         for (PsiMethod setMethod : PsiUtils.extractSetMethods(parameterClass)) {
-            PsiType parameterType = setMethod.getParameterList().getParameters()[0].getType();
+            PsiParameter psiParameter = setMethod.getParameterList().getParameters()[0];
+            PsiType parameterType = psiParameter.getType();
             importType(psiJavaFile, parameterType);
-            stringBuilder.append("    ").append(
-                    format("%s.%s(%s)", fieldCode.getName(), setMethod.getName(), buildMock(parameterType))
-            ).append(";\n");
+            stringBuilder.append("    ")
+                    .append(format("%s %s=%s;", psiParameter.getType().getCanonicalText(), psiParameter.getName(),  buildMock(parameterType)))
+                    .append("\n");
+            stringBuilder.append("    ")
+                    .append(format("%s.%s(%s)", fieldCode.getName(), setMethod.getName(),  psiParameter.getName()))
+                .append(";\n");
         }
         fieldCode.setSetCode(stringBuilder.toString());
 
