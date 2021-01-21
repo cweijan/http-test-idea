@@ -11,7 +11,7 @@ public class Constant {
      * 上下文菜单字体
      */
     public static final String FONT_FAMILY = "Microsoft yaHei";
-    public static final String HTTP_TEST_VERSION = "0.0.9";
+    public static final String HTTP_TEST_VERSION = "1.0.0";
     public static final String SPRING_BOOT_VERSION = "2.3.0.RELEASE";
     /**
      * 上下文菜单文字
