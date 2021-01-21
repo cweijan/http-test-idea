@@ -4,6 +4,7 @@ import com.intellij.codeInsight.CodeInsightUtil;
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 import com.intellij.codeInspection.util.IntentionFamilyName;
 import com.intellij.codeInspection.util.IntentionName;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
@@ -21,8 +22,6 @@ import github.cweijan.http.test.ui.CreateHttpTestDialog;
 import github.cweijan.http.test.util.MvcUtil;
 import github.cweijan.http.test.util.PsiUtils;
 import org.jetbrains.annotations.NotNull;
-
-import javax.swing.*;
 
 import static github.cweijan.http.test.util.PsiUtils.checkAndAddModule;
 
@@ -45,7 +44,7 @@ public class HttpTestForClassAction extends PsiElementBaseIntentionAction {
 
         checkAndAddModule(project, sourceClass);
 
-        SwingUtilities.invokeLater(() -> {
+        ApplicationManager.getApplication().invokeLater(() -> {
             if (testDialog.showAndGet()) {
                 GenerateContext generateContext = testDialog.getGenerateContext();
                 PsiUtils.doWrite(project, () -> {
