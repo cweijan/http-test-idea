@@ -17,6 +17,7 @@ import com.intellij.refactoring.PackageWrapper;
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesUtil;
 import com.intellij.refactoring.util.RefactoringUtil;
 import com.intellij.testIntegration.createTest.CreateTestAction;
+import com.intellij.testIntegration.createTest.CreateTestUtils;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.Nullable;
@@ -26,8 +27,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import static github.cweijan.http.test.util.ReflectUtil.invoke;
 
 /**
  * This code refer from CreateTestDialog.
@@ -49,11 +48,11 @@ public  class PackageCreator {
     public PsiDirectory createPackage(String packageName) throws IncorrectOperationException {
         PackageWrapper targetPackage = new PackageWrapper(PsiManager.getInstance(this.project), packageName);
         VirtualFile selectedRoot = (VirtualFile)ReadAction.compute(() -> {
-            List<VirtualFile> testFolders = invoke(CreateTestAction.class,"computeTestRoots",this.targetModule);
+            List<VirtualFile> testFolders = CreateTestUtils.computeTestRoots(targetModule);
             ArrayList roots;
             if (testFolders.isEmpty()) {
                 roots = new ArrayList();
-                List<String> urls =invoke(CreateTestAction.class,"computeSuitableTestRootUrls",this.targetModule);
+                List<String> urls = CreateTestUtils.computeSuitableTestRootUrls(targetModule);
                 Iterator var5 = urls.iterator();
 
                 while(var5.hasNext()) {

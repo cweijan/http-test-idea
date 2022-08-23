@@ -41,6 +41,7 @@ import com.intellij.testIntegration.JavaTestFramework;
 import com.intellij.testIntegration.TestFramework;
 import com.intellij.testIntegration.TestIntegrationUtils;
 import com.intellij.testIntegration.createTest.CreateTestAction;
+import com.intellij.testIntegration.createTest.CreateTestUtils;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.RecentsManager;
 import com.intellij.ui.ReferenceEditorComboWithBrowseButton;
@@ -87,7 +88,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
     private EditorTextField myTargetClassNameField;
     private ReferenceEditorComboWithBrowseButton mySuperClassField;
     private ReferenceEditorComboWithBrowseButton myTargetPackageField;
-    private final JCheckBox myGenerateBeforeBox = new JCheckBox("beforeRequest",false);
+    private final JCheckBox myGenerateBeforeBox = new JCheckBox("beforeRequest", false);
     private final JCheckBox myGenerateAfterBox = new JCheckBox("tear&Down/@After");
     private final JCheckBox myShowInheritedMethodsBox = new JCheckBox("Show &inherited methods");
     private final MemberSelectionTable myMethodsTable = new MemberSelectionTable(Collections.emptyList(), null);
@@ -154,7 +155,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
             myFixLibraryPanel.setVisible(false);
         } else {
             myFixLibraryPanel.setVisible(true);
-            String text = descriptor.getName()+" library not found in the module";
+            String text = descriptor.getName() + " library not found in the module";
             myFixLibraryLabel.setText(text);
             myFixLibraryButton.setVisible(descriptor instanceof JavaTestFramework && ((JavaTestFramework) descriptor).getFrameworkLibraryDescriptor() != null
                     || descriptor.getLibraryPath() != null);
@@ -435,7 +436,7 @@ public class CreateHttpTestDialog extends DialogWrapper {
 
         if (errorMessage != null) {
             final int result = Messages
-                    .showOkCancelDialog(errorMessage+". Update existing class?", CommonBundle.getErrorTitle(),"OK","Cancel", Messages.getErrorIcon());
+                    .showOkCancelDialog(errorMessage + ". Update existing class?", CommonBundle.getErrorTitle(), "OK", "Cancel", Messages.getErrorIcon());
             if (result == Messages.CANCEL) {
                 return;
             }
@@ -455,11 +456,11 @@ public class CreateHttpTestDialog extends DialogWrapper {
         final PackageWrapper targetPackage = new PackageWrapper(PsiManager.getInstance(project), packageName);
 
         final VirtualFile selectedRoot = ReadAction.compute(() -> {
-            final List<VirtualFile> testFolders = ReflectUtil.invoke(CreateTestAction.class, "computeTestRoots", testModule);
+            final List<VirtualFile> testFolders = CreateTestUtils.computeTestRoots(testModule);
             List<VirtualFile> roots;
             if (testFolders.isEmpty()) {
                 roots = new ArrayList<>();
-                List<String> urls = ReflectUtil.invoke(CreateTestAction.class, "computeSuitableTestRootUrls", testModule);
+                List<String> urls = CreateTestUtils.computeSuitableTestRootUrls(testModule);
                 for (String url : urls) {
                     try {
                         ContainerUtil.addIfNotNull(roots, VfsUtil.createDirectories(VfsUtilCore.urlToPath(url)));
